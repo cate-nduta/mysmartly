@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 export default function Header() {
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     // Check user once on mount, but don't show loading state to prevent twitching
@@ -34,6 +35,14 @@ export default function Header() {
   }, [])
 
   const isActive = (path: string) => pathname === path
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false)
+  }
 
   return (
     <header className="bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b border-gray-200">
@@ -117,12 +126,107 @@ export default function Header() {
             </Link>
           </div>
           {/* Mobile menu button */}
-          <button className="md:hidden text-text-secondary hover:text-primary">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+          <button 
+            onClick={toggleMobileMenu}
+            className="md:hidden text-text-secondary hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent rounded p-1"
+            aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
+        
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
+            <div className="flex flex-col space-y-4">
+              <Link
+                href="/how-it-works"
+                onClick={closeMobileMenu}
+                className={`transition-colors py-2 ${
+                  isActive('/how-it-works')
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary hover:text-primary'
+                }`}
+              >
+                How It Works
+              </Link>
+              <Link
+                href="/solutions"
+                onClick={closeMobileMenu}
+                className={`transition-colors py-2 ${
+                  pathname?.startsWith('/solutions')
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary hover:text-primary'
+                }`}
+              >
+                Solutions
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={closeMobileMenu}
+                className={`transition-colors py-2 ${
+                  isActive('/pricing')
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary hover:text-primary'
+                }`}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/resources"
+                onClick={closeMobileMenu}
+                className={`transition-colors py-2 ${
+                  pathname?.startsWith('/resources')
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary hover:text-primary'
+                }`}
+              >
+                Resources
+              </Link>
+              <Link
+                href="/about"
+                onClick={closeMobileMenu}
+                className={`transition-colors py-2 ${
+                  isActive('/about')
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary hover:text-primary'
+                }`}
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                onClick={closeMobileMenu}
+                className={`transition-colors py-2 ${
+                  isActive('/contact')
+                    ? 'text-accent font-medium'
+                    : 'text-text-secondary hover:text-primary'
+                }`}
+              >
+                Contact
+              </Link>
+              <Link
+                href="/auth/login"
+                onClick={closeMobileMenu}
+                className="flex items-center gap-2 py-2 text-text-secondary hover:text-primary transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>{user ? 'Account' : 'Sign In / Sign Up'}</span>
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   )

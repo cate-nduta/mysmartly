@@ -3,22 +3,23 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { signInWithEmail, signUpWithEmail } from '@/lib/supabase-auth'
+import { signInWithEmail } from '@/lib/supabase-auth'
 import Header from '@/components/Header'
 import AdminDashboard from '@/components/admin/AdminDashboard'
+import { useSessionTimeout } from '@/hooks/useSessionTimeout'
 
 export default function AdminPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isSignup, setIsSignup] = useState(false)
   const [loginLoading, setLoginLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Enable session timeout (1 hour inactivity) - only when logged in
+  useSessionTimeout()
 
   useEffect(() => {
     checkAuth()
@@ -35,12 +36,6 @@ export default function AdminPage() {
 
       setUser(currentUser)
 
-      // ============================================
-      // ADMIN PAGE - ONLY CHECK ADMIN STATUS
-      // This page is ONLY for admins
-      // Users must be in admin_users table
-      // ============================================
-      
       // Check if user is admin (REQUIRED for /admin page)
       const { data: adminData, error: adminError } = await supabase
         .from('admin_users')
@@ -51,13 +46,12 @@ export default function AdminPage() {
 
       if (adminError || !adminData) {
         // User is authenticated but not in admin_users table
-        // This is an admin-only page - show access denied
-        setError('Access denied. You do not have admin privileges. Please contact the system administrator to be added as an admin user.')
+        setError('Access denied. You do not have admin privileges.')
         setLoading(false)
         return
       }
 
-      // Admin authenticated - user is in admin_users table
+      // Admin authenticated
       setIsAdmin(true)
     } catch (error) {
       console.error('Error checking auth:', error)
@@ -67,105 +61,134 @@ export default function AdminPage() {
     }
   }
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoginLoading(true)
     setError(null)
 
     try {
-      let data: any
-      
-      if (isSignup) {
-        // ============================================
-        // ADMIN SIGNUP - Only on /admin page
-        // ============================================
-        if (password !== confirmPassword) {
-          setError('Passwords do not match')
-          setLoginLoading(false)
-          return
-        }
-        
-        if (password.length < 8) {
-          setError('Password must be at least 8 characters')
-          setLoginLoading(false)
-          return
-        }
+      if (!username || !password) {
+        setError('Please enter both username/email and password')
+        setLoginLoading(false)
+        return
+      }
 
-        const signUpData = await signUpWithEmail(email, password)
-        if (signUpData.error) throw signUpData.error
-        data = signUpData.data
+      const loginValue = username.toLowerCase().trim()
+      const isEmail = loginValue.includes('@')
 
-        if (data.user) {
-          // Update user metadata with full name
-          await supabase.auth.updateUser({
-            data: { full_name: fullName }
-          })
+      // Lookup admin user by username OR email
+      let adminUser = null
+      let lookupError = null
 
-          // Create user preferences
-          await supabase
-            .from('user_preferences')
-            .insert([{ user_id: data.user.id }])
-
-          // Add user to admin_users table (REQUIRED for admin access)
-          const { error: adminError } = await supabase
-            .from('admin_users')
-            .insert([{
-              user_id: data.user.id,
-              email: email,
-              is_active: true
-            }])
-
-          if (adminError) {
-            console.error('Error adding admin user:', adminError)
-            // Continue anyway - might already exist
-          }
-
-          // Admin authenticated - ALWAYS redirect to /admin dashboard
-          window.location.reload()
-          return
-        }
+      if (isEmail) {
+        // Try to find by email
+        const { data, error } = await supabase
+          .from('admin_users')
+          .select('email, username, is_active')
+          .eq('email', loginValue)
+          .eq('is_active', true)
+          .single()
+        adminUser = data
+        lookupError = error
       } else {
-        // ============================================
-        // ADMIN LOGIN - Only on /admin page
-        // MUST check admin status
-        // ALWAYS redirect to /admin dashboard
-        // ============================================
-        const signInData = await signInWithEmail(email, password)
-        if (signInData.error) throw signInData.error
-        data = signInData.data
+        // Try to find by username
+        const { data, error } = await supabase
+          .from('admin_users')
+          .select('email, username, is_active')
+          .eq('username', loginValue)
+          .eq('is_active', true)
+          .single()
+        adminUser = data
+        lookupError = error
+      }
 
-        if (data.user) {
-          // Check if user is admin (REQUIRED for /admin page)
-          const { data: adminData, error: adminError } = await supabase
-            .from('admin_users')
-            .select('*')
-            .eq('user_id', data.user.id)
-            .eq('is_active', true)
-            .single()
+      if (lookupError || !adminUser) {
+        console.error('Lookup error:', lookupError)
+        setError('Invalid username/email or password. Please check your credentials and try again.')
+        setLoginLoading(false)
+        return
+      }
 
-          if (adminError || !adminData) {
-            setError('Access denied. You do not have admin privileges. Please contact the system administrator to be added as an admin user.')
-            setLoginLoading(false)
-            // Sign out the user since they're not admin
-            await supabase.auth.signOut()
-            return
-          }
-
-          // Admin authenticated - ALWAYS redirect to /admin dashboard
-          window.location.reload()
+      // Use the email from admin_users table for Supabase auth
+      const signInData = await signInWithEmail(adminUser.email, password)
+      if (signInData.error) {
+        console.error('Sign in error:', signInData.error)
+        if (signInData.error.message?.includes('Invalid login credentials')) {
+          setError('Invalid password. Please check your password and try again.')
+        } else {
+          setError(signInData.error.message || 'Invalid username/email or password. Please check your credentials and try again.')
         }
+        setLoginLoading(false)
+        return
+      }
+
+      if (signInData.data?.user) {
+        // Check if user is admin (REQUIRED for /admin page)
+        const { data: adminData, error: adminError } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', signInData.data.user.id)
+          .eq('is_active', true)
+          .single()
+
+        if (adminError || !adminData) {
+          console.error('Admin check error:', adminError)
+          setError('Admin account not found. Please contact the system administrator.')
+          setLoginLoading(false)
+          await supabase.auth.signOut()
+          return
+        }
+
+        // Admin authenticated - update state to show dashboard
+        console.log('✅ Login successful, redirecting to dashboard...')
+        setUsername('')
+        setPassword('')
+        setError(null)
+        setLoginLoading(false)
+        
+        // Set user and admin state - this will trigger dashboard display
+        setUser(signInData.data.user)
+        setIsAdmin(true)
+        setLoading(false)
       }
     } catch (err: any) {
-      setError(err.message || (isSignup ? 'Failed to create account' : 'Failed to sign in'))
+      console.error('Login error:', err)
+      setError(err.message || 'Failed to sign in')
       setLoginLoading(false)
     }
   }
 
-
-
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
+    try {
+      // Clear state immediately
+      setUser(null)
+      setIsAdmin(false)
+      setUsername('')
+      setPassword('')
+      setError(null)
+      
+      // Clear any session/local storage
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear()
+        localStorage.removeItem('supabase.auth.token')
+      }
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut()
+      
+      // Small delay to ensure signOut completes
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Force full page reload to reset everything
+      window.location.href = '/admin'
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Even if there's an error, still redirect and clear storage
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear()
+        window.location.href = '/admin'
+      }
+    }
   }
 
   if (loading) {
@@ -178,7 +201,6 @@ export default function AdminPage() {
     )
   }
 
-
   // Show login if not authenticated or not admin
   if (!user || !isAdmin) {
     return (
@@ -187,12 +209,10 @@ export default function AdminPage() {
         <div className="flex items-center justify-center px-4 py-12 min-h-[calc(100vh-80px)]">
           <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
             <h1 className="text-2xl font-bold text-primary mb-2 text-center">
-              {isSignup ? 'Admin Sign Up' : 'Admin Login'}
+              Admin Login
             </h1>
             <p className="text-text-secondary mb-6 text-center">
-              {isSignup 
-                ? 'Create an admin account to access the admin dashboard'
-                : 'Admin access only. Use your admin credentials to sign in.'}
+              Admin access only. Use your admin credentials to sign in.
             </p>
             
             {error && (
@@ -201,36 +221,20 @@ export default function AdminPage() {
               </div>
             )}
 
-            <form onSubmit={handleEmailLogin} className="space-y-4">
-              {isSignup && (
-                <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-primary mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="Your full name"
-                    required
-                  />
-                </div>
-              )}
-
+            <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-primary mb-2">
-                  Email Address
+                <label htmlFor="username" className="block text-sm font-medium text-primary mb-2">
+                  Username or Email
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                  placeholder="admin@example.com"
+                  placeholder="Enter your username or email"
                   required
+                  autoComplete="username"
                 />
               </div>
 
@@ -244,56 +248,20 @@ export default function AdminPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                  placeholder={isSignup ? "Min. 8 characters" : "Enter your password"}
-                  minLength={isSignup ? 8 : undefined}
+                  placeholder="Enter your password"
                   required
+                  autoComplete="current-password"
                 />
               </div>
-
-              {isSignup && (
-                <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-primary mb-2">
-                    Confirm Password
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholder="Confirm your password"
-                    required
-                  />
-                </div>
-              )}
 
               <button
                 type="submit"
                 disabled={loginLoading}
                 className="w-full px-4 py-3 bg-accent text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loginLoading 
-                  ? (isSignup ? 'Creating account...' : 'Signing in...') 
-                  : (isSignup ? 'Sign Up' : 'Sign In')}
+                {loginLoading ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
-
-            <div className="mt-6 text-center text-sm">
-              <button
-                onClick={() => {
-                  setIsSignup(!isSignup)
-                  setError(null)
-                  setPassword('')
-                  setConfirmPassword('')
-                  setFullName('')
-                }}
-                className="text-accent hover:underline font-medium"
-              >
-                {isSignup 
-                  ? 'Already have an admin account? Sign in' 
-                  : "Don't have an admin account? Sign up"}
-              </button>
-            </div>
           </div>
         </div>
       </div>

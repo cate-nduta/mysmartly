@@ -44,7 +44,20 @@ function SignupContent() {
     try {
       const { data, error: signUpError } = await signUpWithEmail(email, password)
       
-      if (signUpError) throw signUpError
+      // Handle duplicate account error - Supabase returns specific error for existing users
+      if (signUpError) {
+        // Check if it's a "user already exists" error
+        const errorMessage = signUpError.message?.toLowerCase() || ''
+        if (errorMessage.includes('already registered') || 
+            errorMessage.includes('already exists') ||
+            errorMessage.includes('user already registered') ||
+            errorMessage.includes('email address is already registered')) {
+          setError('An account with this email already exists. Please sign in instead or use "Forgot password" to reset your password.')
+          setLoading(false)
+          return
+        }
+        throw signUpError
+      }
 
       if (data.user) {
         // Update user metadata with full name

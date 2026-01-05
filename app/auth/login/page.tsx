@@ -25,7 +25,19 @@ export default function LoginPage() {
     try {
       const { data, error: signInError } = await signInWithEmail(email, password)
       
-      if (signInError) throw signInError
+      if (signInError) {
+        // Provide helpful error messages
+        const errorMessage = signInError.message?.toLowerCase() || ''
+        if (errorMessage.includes('invalid login') || errorMessage.includes('invalid credentials')) {
+          setError('Invalid email or password. Please check your credentials and try again. If you forgot your password, use "Forgot password?" to reset it.')
+        } else if (errorMessage.includes('email not confirmed') || errorMessage.includes('email not verified')) {
+          setError('Please check your email and confirm your account before signing in. Check your spam folder if you don\'t see the confirmation email.')
+        } else {
+          setError(signInError.message || 'Failed to sign in. Please try again.')
+        }
+        setLoading(false)
+        return
+      }
 
       if (data.session && data.user) {
         // ============================================
@@ -49,6 +61,13 @@ export default function LoginPage() {
 
         // Client user - ALWAYS redirect to dashboard
         // Do NOT check admin status - this is a client-only page
+        // Check for timeout message
+        const urlParams = new URLSearchParams(window.location.search)
+        if (urlParams.get('timeout') === 'true') {
+          // Show timeout message
+          setError('Your session has expired due to inactivity. Please sign in again.')
+        }
+        
         window.location.href = '/dashboard'
       }
     } catch (err: any) {

@@ -129,11 +129,46 @@ export async function POST(request: NextRequest) {
     const fromEmail = process.env.ZOHO_FROM_EMAIL || process.env.EMAIL_FROM || smtpUser
     const fromName = process.env.EMAIL_FROM_NAME || 'mySmartly'
 
+    // Validate email configuration
     if (!smtpHost || !smtpUser || !smtpPass) {
       console.error('SMTP configuration missing. Required: SMTP_HOST, SMTP_USER, SMTP_PASS')
+      console.error('Current config:', {
+        host: smtpHost ? 'Set' : 'Missing',
+        user: smtpUser ? 'Set' : 'Missing',
+        pass: smtpPass ? 'Set' : 'Missing',
+        port: smtpPort
+      })
+      
+      // Log error to database
+      try {
+        await supabase
+          .from('email_logs')
+          .insert({
+            recipient_email: recipientEmail,
+            recipient_name: recipientName || null,
+            email_type: emailType,
+            subject: 'Failed to send - Configuration error',
+            body: '',
+            status: 'failed',
+            error_message: 'SMTP configuration missing. Please check environment variables.',
+            sent_at: new Date().toISOString(),
+          })
+      } catch (logError) {
+        console.error('Error logging email failure:', logError)
+      }
+      
       return NextResponse.json(
         { error: 'Email service is not configured. Please contact the administrator.' },
         { status: 500 }
+      )
+    }
+
+    // Validate email address format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(recipientEmail)) {
+      return NextResponse.json(
+        { error: 'Invalid recipient email address' },
+        { status: 400 }
       )
     }
 
@@ -164,6 +199,37 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Verify SMTP connection before sending
+    try {
+      await transporter.verify()
+    } catch (verifyError: any) {
+      console.error('SMTP connection verification failed:', verifyError)
+      
+      // Log error to database
+      try {
+        await supabase
+          .from('email_logs')
+          .insert({
+            application_id: applicationId || null,
+            recipient_email: recipientEmail,
+            recipient_name: recipientName || null,
+            email_type: emailType,
+            subject: emailContent.subject,
+            body: emailContent.html,
+            status: 'failed',
+            error_message: verifyError.message || 'SMTP connection failed',
+            sent_at: new Date().toISOString(),
+          })
+      } catch (logError) {
+        console.error('Error logging email failure:', logError)
+      }
+      
+      return NextResponse.json(
+        { error: 'Email service connection failed. Please check SMTP configuration.' },
+        { status: 500 }
+      )
+    }
+
     // Send email
     const mailOptions = {
       from: `"${fromName}" <${fromEmail}>`,
@@ -171,9 +237,43 @@ export async function POST(request: NextRequest) {
       subject: emailContent.subject,
       text: emailContent.text,
       html: emailContent.html,
+      // Add error handling
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+      },
     }
 
-    const info = await transporter.sendMail(mailOptions)
+    let info
+    try {
+      info = await transporter.sendMail(mailOptions)
+    } catch (sendError: any) {
+      console.error('Error sending email:', sendError)
+      
+      // Log error to database
+      try {
+        await supabase
+          .from('email_logs')
+          .insert({
+            application_id: applicationId || null,
+            recipient_email: recipientEmail,
+            recipient_name: recipientName || null,
+            email_type: emailType,
+            subject: emailContent.subject,
+            body: emailContent.html,
+            status: 'failed',
+            error_message: sendError.message || 'Failed to send email',
+            sent_at: new Date().toISOString(),
+          })
+      } catch (logError) {
+        console.error('Error logging email failure:', logError)
+      }
+      
+      return NextResponse.json(
+        { error: sendError.message || 'Failed to send email. Please try again later.' },
+        { status: 500 }
+      )
+    }
 
     // Log the email in database
     const { error: logError } = await supabase

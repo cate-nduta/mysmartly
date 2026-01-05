@@ -16,6 +16,7 @@ import UsageSection from '@/components/dashboard/UsageSection'
 import SpendingSection from '@/components/dashboard/SpendingSection'
 import BillingSection from '@/components/dashboard/BillingSection'
 import { getPlanLimits } from '@/lib/planLimits'
+import { useSessionTimeout } from '@/hooks/useSessionTimeout'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -27,6 +28,9 @@ export default function DashboardPage() {
   const [recommendationsCount, setRecommendationsCount] = useState(0)
   const [onboardingData, setOnboardingData] = useState<any>(null)
   const [activeSection, setActiveSection] = useState<'dashboard' | 'usage' | 'spending' | 'billing'>('dashboard')
+
+  // Enable session timeout (1 hour inactivity)
+  useSessionTimeout()
 
   useEffect(() => {
     checkUser()

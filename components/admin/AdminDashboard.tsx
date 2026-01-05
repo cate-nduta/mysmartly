@@ -15,6 +15,7 @@ import WebinarsManagement from './WebinarsManagement'
 import WhoItsForManagement from './WhoItsForManagement'
 import WaitlistManagement from './WaitlistManagement'
 import LegalPagesManagement from './LegalPagesManagement'
+import { useSessionTimeout } from '@/hooks/useSessionTimeout'
 
 type Tab = 'pricing' | 'jobs' | 'applications' | 'email-logs' | 'team' | 'contact' | 'settings' | 'blogs' | 'case-studies' | 'guides' | 'webinars' | 'who-its-for' | 'waitlist' | 'legal-pages'
 
@@ -25,6 +26,9 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>('pricing')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  // Enable session timeout (1 hour inactivity) for admin dashboard
+  useSessionTimeout()
 
   const handleLogout = () => {
     if (onLogout) {

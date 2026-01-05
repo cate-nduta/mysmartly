@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Netlify Next.js plugin handles routing automatically
-  // Optimize images for fast loading
+  // Production optimizations
+  poweredByHeader: false,
+  compress: true,
+  swcMinify: true,
+  
+  // Image optimization
   images: {
     unoptimized: false,
     formats: ['image/avif', 'image/webp'],
@@ -21,10 +25,33 @@ const nextConfig = {
       },
     ],
   },
-  // Enable compression
-  compress: true,
-  // Optimize production builds
-  swcMinify: true,
+  
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin'
+          },
+        ],
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig
