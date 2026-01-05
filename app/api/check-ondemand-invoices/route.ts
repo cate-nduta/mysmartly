@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     const results = []
     for (const invoice of invoicesToSend) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/send-ondemand-invoice`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://mysmartly.app'}/api/send-ondemand-invoice`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

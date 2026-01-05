@@ -25,7 +25,7 @@ NEXT_PUBLIC_ADMIN_PASSWORD=admin123
 ZOHO_SMTP_HOST=smtp.zoho.com        # or smtp.zoho.eu if you're on the EU servers
 ZOHO_SMTP_PORT=465                  # 465 = SSL, 587 = STARTTLS
 ZOHO_SMTP_USER=hello@mysmartly.app
-ZOHO_SMTP_PASS=2HWDhHvejDvm         # Get from Zoho Mail → Security → App Passwords
+ZOHO_SMTP_PASS=your_zoho_app_password_here         # Get from Zoho Mail → Security → App Passwords
 ZOHO_FROM_EMAIL=hello@mysmartly.app
 EMAIL_FROM_NAME=mySmartly
 CALENDAR_EMAIL=hello@mysmartly.app
@@ -59,7 +59,7 @@ CALENDAR_EMAIL=hello@mysmartly.app
 4. **Add to .env.local:**
    - Open your `.env.local` file
    - Add the Zoho SMTP settings as shown above
-   - Replace `2HWDhHvejDvm` with your actual App-Specific Password (or keep it if that's your current password)
+   - Replace `your_zoho_app_password_here` with your actual App-Specific Password
 
 ### Quick Navigation Path:
 ```
@@ -68,7 +68,7 @@ Zoho Mail → Settings (⚙️) → Security → App Passwords → Generate New 
 
 ## Important Notes
 
-- **You already have a password:** `2HWDhHvejDvm` - if this works, you can use it
+- **Generate a new password:** Follow the steps above to generate one
 - **If you need a new password:** Follow the steps above to generate one
 - **The password is 16 characters:** Usually a mix of letters and numbers
 - **Never share this password:** Treat it like your account password
@@ -103,7 +103,7 @@ NEXT_PUBLIC_ADMIN_PASSWORD=admin123
 ZOHO_SMTP_HOST=smtp.zoho.com
 ZOHO_SMTP_PORT=465
 ZOHO_SMTP_USER=hello@mysmartly.app
-ZOHO_SMTP_PASS=2HWDhHvejDvm
+ZOHO_SMTP_PASS=your_zoho_app_password_here
 ZOHO_FROM_EMAIL=hello@mysmartly.app
 EMAIL_FROM_NAME=mySmartly
 CALENDAR_EMAIL=hello@mysmartly.app

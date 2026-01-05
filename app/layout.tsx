@@ -31,8 +31,10 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await getSiteSettings()
     const faviconUrl = settings.favicon_url || '/icon.svg'
     const logoUrl = settings.logo_url || '/icon.svg'
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mysmartly.app'
 
     return {
+      metadataBase: new URL(siteUrl),
       title: 'mysmartly - AI Driven Business Solutions',
       description: 'mySmartly analyzes your data and tells you exactly what to do next. Get clear, actionable recommendations that drive real growth.',
       keywords: 'business intelligence, decision automation, data analytics, AI business insights, automated decisions',
@@ -45,6 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
         title: 'mysmartly - AI Driven Business Solutions',
         description: 'Smart Decisions, AI-Validated. Every Time.',
         type: 'website',
+        url: siteUrl,
         images: [
           {
             url: logoUrl,

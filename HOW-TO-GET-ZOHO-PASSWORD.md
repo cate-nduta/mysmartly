@@ -38,12 +38,10 @@ Zoho Mail → Settings (⚙️) → Security → App Passwords → Generate New 
 ## What the Password Looks Like
 - It's usually 16 characters long
 - Contains letters and numbers
-- Example format: `2HWDhHvejDvm` (your actual password will be different)
+- Example format: `AbCdEf123456GhIj` (your actual password will be different - 16 characters)
 
-## Your Password Example
-Based on your request, you already have a password: `2HWDhHvejDvm`
-
-If you need to generate a new one, follow the steps above.
+## Generate Your Password
+Follow the steps above to generate your App-Specific Password. Make sure to copy it immediately as you won't be able to see it again!
 
 ## Important Notes
 
