@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #0F4C5C;
+  --secondary: #C7EDE6;
+  --accent: #10B981;
+  --burgundy: #800020;
+  --burgundy-light: #FDF2F4;
+  --text-primary: #1F2933;
+  --text-secondary: #6B7280;
+  --background: #F9FAFB;
+  --surface: #FFFFFF;
+  --border: #E5E7EB;
+  --surface-alt: #F3F4F6;
+}
+
+/* Reduced spacing utilities */
+.hero-section {
+  @apply py-12 lg:py-16;
+}
+
+.section-spacing {
+  @apply py-12 lg:py-16;
+}
+
+.section-spacing-sm {
+  @apply py-8 lg:py-12;
+}
+
+/* Rich Text Editor Styles */
+.ql-container {
+  font-family: inherit;
+  font-size: 16px;
+  height: auto;
+  min-height: 200px;
+}
+
+.ql-editor {
+  min-height: 200px;
+}
+
+.ql-editor.ql-blank::before {
+  font-style: normal;
+  color: #9ca3af;
+}
+
+.ql-toolbar {
+  border-top: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: #f9fafb;
+}
+
+.ql-container {
+  border-bottom: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 640px) {
+  .hero-section {
+    @apply py-8;
+  }
+  
+  .section-spacing {
+    @apply py-8;
+  }
+  
+  .section-spacing-sm {
+    @apply py-6;
+  }
+}
+
+/* Better text contrast on colored backgrounds */
+.bg-primary,
+.bg-accent {
+  color: white;
+}
+
+.bg-primary *,
+.bg-accent * {
+  color: white;
+}
