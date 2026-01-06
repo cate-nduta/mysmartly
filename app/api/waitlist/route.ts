@@ -1,67 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import nodemailer from 'nodemailer'
+import { sendEmail } from '@/lib/email'
 
 async function sendWaitlistWelcomeEmail(toEmail: string) {
   try {
-    // Check if SMTP is configured
-    const smtpHost = process.env.ZOHO_SMTP_HOST || process.env.SMTP_HOST
-    const smtpUser = process.env.ZOHO_SMTP_USER || process.env.SMTP_USER
-    const smtpPass = process.env.ZOHO_SMTP_PASS || process.env.SMTP_PASS
-
-    if (!smtpHost || !smtpUser || !smtpPass) {
-      console.error('[WAITLIST EMAIL] SMTP not configured. Missing:', {
-        host: !smtpHost,
-        user: !smtpUser,
-        pass: !smtpPass
-      })
-      return
-    }
-
     console.log('[WAITLIST EMAIL] Attempting to send welcome email to:', toEmail)
-    console.log('[WAITLIST EMAIL] SMTP Config:', {
-      host: smtpHost,
-      port: process.env.ZOHO_SMTP_PORT || process.env.SMTP_PORT || '465',
-      user: smtpUser,
-      fromEmail: process.env.ZOHO_FROM_EMAIL || process.env.EMAIL_FROM || smtpUser,
-    })
-
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: parseInt(process.env.ZOHO_SMTP_PORT || process.env.SMTP_PORT || '465'),
-      secure: parseInt(process.env.ZOHO_SMTP_PORT || process.env.SMTP_PORT || '465') === 465,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      // Add connection timeout
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-    })
-
-    // Verify SMTP connection before sending
-    console.log('[WAITLIST EMAIL] Verifying SMTP connection...')
-    try {
-      await transporter.verify()
-      console.log('[WAITLIST EMAIL] SMTP connection verified successfully')
-    } catch (verifyError: any) {
-      console.error('[WAITLIST EMAIL] SMTP verification failed:', {
-        message: verifyError.message,
-        code: verifyError.code,
-        command: verifyError.command,
-        response: verifyError.response,
-        responseCode: verifyError.responseCode,
-        stack: verifyError.stack,
-      })
-      throw verifyError
-    }
-
-    const fromEmail = process.env.ZOHO_FROM_EMAIL || process.env.EMAIL_FROM || smtpUser
-    const fromName = process.env.EMAIL_FROM_NAME || 'Catherine.K'
-    
-    // Use a simple from format for better deliverability (personal name only)
-    const fromAddress = `"${fromName}" <${fromEmail}>`
 
     const html = `
 <!DOCTYPE html>
@@ -180,27 +123,33 @@ Founder, mySmartly
 https://mysmartly.app
     `
 
-    const result = await transporter.sendMail({
-      from: fromAddress,
+    // Use shared email function (same one test endpoint uses)
+    const result = await sendEmail({
       to: toEmail,
-      replyTo: fromEmail,
       subject: 'Thanks for joining the mySmartly waitlist',
       html,
       text,
-      headers: {
-        // List-Unsubscribe header for compliance (required for commercial emails)
-        'List-Unsubscribe': `<mailto:${fromEmail}?subject=unsubscribe>`,
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-      },
-      // Add unique message ID for better deliverability
-      messageId: `<waitlist-${Date.now()}-${Math.random().toString(36).substring(7)}@mysmartly.app>`,
-      // Set date header explicitly
-      date: new Date(),
     })
 
-    console.log('[WAITLIST EMAIL] Successfully sent welcome email to:', toEmail)
-    console.log('[WAITLIST EMAIL] Message ID:', result.messageId)
-    console.log('[WAITLIST EMAIL] Response:', result.response)
+    console.log('[WAITLIST EMAIL] ✅ Successfully sent welcome email to:', toEmail)
+    
+    // Also log success to email_logs table if it exists (optional)
+    try {
+      const { supabase } = await import('@/lib/supabase')
+      await supabase.from('email_logs').insert([{
+        to_email: toEmail,
+        email_type: 'waitlist_welcome',
+        status: 'sent',
+        recipient_email: toEmail,
+        subject: 'Thanks for joining the mySmartly waitlist',
+        sent_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      }])
+      console.log('[WAITLIST EMAIL] Logged success to email_logs table')
+    } catch (logError) {
+      // Ignore logging errors - table might not exist, that's OK
+      console.log('[WAITLIST EMAIL] Note: Could not log to email_logs table (optional, not critical)')
+    }
   } catch (error: any) {
     // Log error with full details
     console.error('[WAITLIST EMAIL] ========== EMAIL SEND ERROR ==========')
@@ -280,11 +229,16 @@ export async function POST(request: Request) {
       throw error
     }
 
-    // Send welcome email (non-blocking - don't fail the request if email fails)
-    sendWaitlistWelcomeEmail(email).catch(err => {
-      console.error('[WAITLIST EMAIL] Failed to send welcome email (caught in promise):', err)
-      // The error is already logged in the sendWaitlistWelcomeEmail function
-    })
+    // Send welcome email - try to await it so we can log any errors properly
+    // But don't fail the request if email fails (user should still be added to waitlist)
+    try {
+      await sendWaitlistWelcomeEmail(email)
+      console.log('[WAITLIST] Successfully sent welcome email to:', email)
+    } catch (emailError: any) {
+      // Email failed but user was added to waitlist - log it but don't fail the request
+      console.error('[WAITLIST] Failed to send welcome email (non-critical):', emailError?.message || emailError)
+      // The detailed error is already logged in sendWaitlistWelcomeEmail function
+    }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
