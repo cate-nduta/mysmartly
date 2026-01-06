@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="md:col-span-1">
             <Logo className="mb-4" textColor="#FFFFFF" />
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your automated business analyst. Smart Decisions, AI-Validated. Every Time.
+              Transform Data into Automated Business Decisions
             </p>
           </div>
 

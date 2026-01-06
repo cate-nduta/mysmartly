@@ -41,10 +41,10 @@ export default function DecisionFeedShowcase() {
             Your Daily Action Plan, Automatically Generated
           </h2>
           <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed mb-4">
-            Instead of spending hours analyzing data, mySmartly delivers a prioritized list of actions you should take today.
+            Instead of spending hours analyzing data, mySmartly gives you a ranked list of what to do today.
           </p>
           <p className="text-lg text-text-secondary max-w-3xl mx-auto leading-relaxed">
-            Each recommendation is backed by data analysis and includes projected outcomes, implementation steps, and risk assessment. You decide which actions to take—the system learns from your choices to provide better suggestions over time.
+            Each recommendation shows projected outcomes and how to implement it. You decide what to do, and the system learns from your choices to improve over time.
           </p>
         </motion.div>
         

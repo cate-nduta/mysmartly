@@ -93,11 +93,11 @@ export default function AdminPage() {
       } else {
         // Try to find by username
         const { data, error } = await supabase
-          .from('admin_users')
-          .select('email, username, is_active')
+        .from('admin_users')
+        .select('email, username, is_active')
           .eq('username', loginValue)
-          .eq('is_active', true)
-          .single()
+        .eq('is_active', true)
+        .single()
         adminUser = data
         lookupError = error
       }
@@ -174,7 +174,7 @@ export default function AdminPage() {
       }
       
       // Sign out from Supabase
-      await supabase.auth.signOut()
+    await supabase.auth.signOut()
       
       // Small delay to ensure signOut completes
       await new Promise(resolve => setTimeout(resolve, 100))

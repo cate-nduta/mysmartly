@@ -62,7 +62,7 @@ export default async function AboutPage() {
               About mySmartly
             </h1>
             <p className="text-xl md:text-2xl text-text-secondary mb-8 leading-relaxed">
-              We&apos;re building the future of business intelligence—one decision at a time.
+              We&apos;re building the future of business intelligence, one decision at a time.
             </p>
             <p className="text-lg text-text-secondary max-w-3xl mx-auto leading-relaxed">
               At mySmartly, we believe that every business should have access to AI-powered insights that drive real growth. Our mission is to make data-driven decision making accessible to businesses of all sizes, without the complexity and cost of traditional analytics platforms.
@@ -83,7 +83,7 @@ export default async function AboutPage() {
                 We&apos;re on a mission to democratize business intelligence. Too many businesses are drowning in data but starving for insights. We&apos;re changing that by making AI-powered recommendations accessible, actionable, and affordable.
               </p>
               <p className="text-lg text-text-secondary leading-relaxed">
-                Our platform transforms complex data into clear, prioritized actions that drive measurable results. No data science degree required—just connect your tools and start making better decisions today.
+                Our platform turns complex data into clear, prioritized actions. No data science degree required, just connect your tools and start making better decisions today.
               </p>
             </div>
             <div className="bg-gray-50 p-8 rounded-xl">
@@ -104,7 +104,7 @@ export default async function AboutPage() {
                   </svg>
                   <div>
                     <strong className="text-primary">Data-Driven</strong>
-                    <p className="text-text-secondary">We practice what we preach—every decision is backed by data</p>
+                    <p className="text-text-secondary">We practice what we preach, every decision is backed by data</p>
                   </div>
                 </li>
                 <li className="flex items-start">

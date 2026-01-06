@@ -7,6 +7,17 @@ interface WaitlistEntry {
   id: string
   email: string
   created_at: string
+  features?: string[] | null
+  integration_wish?: string | null
+  custom_feature?: string | null
+}
+
+const featureLabels: Record<string, string> = {
+  'cashflow': 'Predictive Cash Flow Alerts',
+  'competitor': 'Competitor Price Monitoring',
+  'profit-optimization': 'Profit Margin Optimization',
+  'team-reports': 'Automated Team Performance Reports',
+  'customer-health': 'Customer Health & Churn Predictor',
 }
 
 export default function WaitlistManagement() {
@@ -15,6 +26,7 @@ export default function WaitlistManagement() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [exporting, setExporting] = useState(false)
+  const [expandedEntry, setExpandedEntry] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEntries()
@@ -59,11 +71,14 @@ export default function WaitlistManagement() {
     setExporting(true)
     try {
       const csvContent = [
-        ['Email', 'Date Joined'].join(','),
+        ['Email', 'Date Joined', 'Features', 'Integration Wish', 'Custom Feature'].join(','),
         ...entries.map(entry => [
           entry.email,
-          new Date(entry.created_at).toLocaleDateString()
-        ].join(','))
+          new Date(entry.created_at).toLocaleDateString(),
+          entry.features?.join('; ') || '',
+          entry.integration_wish || '',
+          (entry.custom_feature || '').replace(/"/g, '""') // Escape quotes for CSV
+        ].map(field => `"${field}"`).join(','))
       ].join('\n')
 
       const blob = new Blob([csvContent], { type: 'text/csv' })
@@ -83,8 +98,16 @@ export default function WaitlistManagement() {
   }
 
   const filteredEntries = entries.filter(entry =>
-    entry.email.toLowerCase().includes(searchTerm.toLowerCase())
+    entry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    entry.integration_wish?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    entry.custom_feature?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  const hasFeedback = (entry: WaitlistEntry) => {
+    return (entry.features && entry.features.length > 0) ||
+           entry.integration_wish ||
+           entry.custom_feature
+  }
 
   if (loading) {
     return (
@@ -131,7 +154,7 @@ export default function WaitlistManagement() {
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Search by email..."
+          placeholder="Search by email, integration, or feedback..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
@@ -149,6 +172,9 @@ export default function WaitlistManagement() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
                   Date Joined
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-primary uppercase tracking-wider">
+                  Feedback
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-primary uppercase tracking-wider">
                   Actions
                 </th>
@@ -157,36 +183,96 @@ export default function WaitlistManagement() {
             <tbody className="divide-y divide-gray-200">
               {filteredEntries.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-8 text-center text-text-secondary">
+                  <td colSpan={4} className="px-6 py-8 text-center text-text-secondary">
                     {searchTerm ? 'No entries found matching your search.' : 'No waitlist entries yet.'}
                   </td>
                 </tr>
               ) : (
                 filteredEntries.map((entry) => (
-                  <tr key={entry.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-primary">{entry.email}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-text-secondary">
-                        {new Date(entry.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleDelete(entry.id, entry.email)}
-                        className="text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={entry.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-primary">{entry.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-text-secondary">
+                          {new Date(entry.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {hasFeedback(entry) ? (
+                          <button
+                            onClick={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)}
+                            className="text-accent hover:text-emerald-600 text-sm font-medium flex items-center gap-1"
+                          >
+                            {expandedEntry === entry.id ? (
+                              <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                                Hide Details
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                                View Details
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <span className="text-text-secondary text-sm">No feedback</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleDelete(entry.id, entry.email)}
+                          className="text-red-600 hover:text-red-800 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedEntry === entry.id && hasFeedback(entry) && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-4 bg-gray-50">
+                          <div className="space-y-4">
+                            {entry.features && entry.features.length > 0 && (
+                              <div>
+                                <h4 className="font-semibold text-primary mb-2">Features Selected:</h4>
+                                <ul className="list-disc list-inside space-y-1">
+                                  {entry.features.map((feature, idx) => (
+                                    <li key={idx} className="text-sm text-text-secondary">
+                                      {featureLabels[feature] || feature}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {entry.integration_wish && (
+                              <div>
+                                <h4 className="font-semibold text-primary mb-1">Integration Wish:</h4>
+                                <p className="text-sm text-text-secondary">{entry.integration_wish}</p>
+                              </div>
+                            )}
+                            {entry.custom_feature && (
+                              <div>
+                                <h4 className="font-semibold text-primary mb-1">Custom Feature Request:</h4>
+                                <p className="text-sm text-text-secondary whitespace-pre-wrap">{entry.custom_feature}</p>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 ))
               )}
             </tbody>
@@ -196,4 +282,3 @@ export default function WaitlistManagement() {
     </div>
   )
 }
-

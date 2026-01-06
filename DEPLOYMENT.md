@@ -37,22 +37,12 @@ npm run lint
 
 ## Deployment Steps
 
-### For Vercel:
-1. Connect your repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
-
 ### For Netlify:
 1. Connect your repository to Netlify
 2. Add environment variables in Netlify dashboard
 3. Build command: `npm run build`
 4. Publish directory: `.next`
-
-### For Other Platforms:
-1. Set environment variables
-2. Run: `npm install`
-3. Run: `npm run build`
-4. Run: `npm start` (production server)
+5. Deploy automatically on push to main branch
 
 ## Post-Deployment
 

@@ -30,10 +30,11 @@ In Supabase SQL Editor, run:
 npm run build
 ```
 
-### 4. Deploy
-- **Vercel**: Push to GitHub, connect in Vercel dashboard
-- **Netlify**: Connect repo, set build command: `npm run build`
-- **Other**: Run `npm start` after build
+### 4. Deploy to Netlify
+1. Connect repository to Netlify
+2. Set build command: `npm run build`
+3. Set publish directory: `.next`
+4. Add environment variables in Netlify dashboard
 
 ## Build Output
 

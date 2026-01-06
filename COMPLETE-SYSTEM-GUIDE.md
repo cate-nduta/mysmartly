@@ -250,12 +250,14 @@ npm run dev
 
 ## Production Deployment
 
-### Vercel Deployment
+### Netlify Deployment
 
 1. Push code to GitHub
-2. Connect to Vercel
-3. Add environment variables
-4. Deploy
+2. Connect repository to Netlify
+3. Build command: `npm run build`
+4. Publish directory: `.next`
+5. Add environment variables in Netlify dashboard
+6. Deploy
 
 ### Required Environment Variables for Production
 

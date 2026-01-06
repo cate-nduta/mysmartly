@@ -15,14 +15,13 @@ export default function Hero() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-6 leading-tight">
-              Smart Decisions,{' '}
-              <span className="text-accent">AI-Validated. Every Time.</span>
+              Transform Data into Automated Business Decisions
             </h1>
             <p className="text-lg md:text-xl text-text-secondary mb-4 leading-relaxed">
-              mySmartly analyzes your data and tells you exactly what to do next. Get clear, actionable recommendations that drive real growth.
+              Growth, retention, cost savings. mySmartly cuts through the noise to show you what to do next, with recommendations backed by your actual data.
             </p>
             <p className="text-base md:text-lg text-text-secondary mb-6 leading-relaxed">
-              Most businesses have access to more data than ever before, but struggle to turn that information into action. While you&apos;re spending hours analyzing spreadsheets, your competitors are making faster decisions and capturing opportunities. mySmartly bridges that gap by transforming your data into a clear, prioritized action plan.
+              Most businesses have more data than they know what to do with. You spend hours looking at spreadsheets while your competitors make decisions faster. mySmartly turns your data into a clear list of what to do next, ranked by what matters most.
             </p>
             
             {/* CTAs */}

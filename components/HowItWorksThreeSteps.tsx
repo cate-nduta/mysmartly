@@ -7,19 +7,19 @@ const steps = [
     number: '01',
     title: 'Connect Your Data',
     description: 'Link your tools in minutes: Google Analytics, Shopify, Stripe, Facebook Ads, QuickBooks, Salesforce, etc.',
-    details: 'Our secure integrations work with over 50 popular business tools. No coding required—just authorize access and we handle the rest. All connections use industry-standard OAuth protocols for maximum security.',
+    details: 'Our integrations work with over 50 business tools. Just authorize access and we handle the rest. All connections use standard OAuth protocols for security.',
   },
   {
     number: '02',
     title: 'Get AI-Powered Analysis',
     description: 'Our engine processes billions of data points to find hidden opportunities and risks in your business.',
-    details: 'Within hours of connecting your data, mySmartly begins analyzing patterns, correlations, and anomalies. Our AI models are trained on thousands of business scenarios and continuously improve their recommendations based on real-world outcomes.',
+    details: 'Within hours of connecting your data, mySmartly starts analyzing patterns and finding opportunities. The system learns from your decisions to give better suggestions over time.',
   },
   {
     number: '03',
     title: 'Receive & Execute Actions',
     description: "Daily 'Decision Feed' with prioritized recommendations. One-click approvals to implement changes.",
-    details: 'Each recommendation includes projected impact, implementation steps, and expected ROI. You can approve actions directly from the feed, schedule them for review, or customize them to fit your specific needs. The system learns from your decisions to provide better suggestions over time.',
+    details: 'Each recommendation shows projected impact and how to implement it. You can approve actions directly, save them for later, or adjust them to fit your needs.',
   },
 ]
 
@@ -83,7 +83,7 @@ export default function HowItWorksThreeSteps() {
           className="bg-accent/10 rounded-xl p-8 border border-accent/20 text-center"
         >
           <p className="text-lg text-text-primary leading-relaxed max-w-3xl mx-auto">
-            The entire process is designed to be fast and frictionless. Unlike traditional analytics tools that require weeks of setup and training, mySmartly delivers value from day one. Your first recommendations appear within 24 hours, and most users see measurable impact within the first month.
+            The whole process is fast. Unlike traditional analytics tools that need weeks of setup, mySmartly starts working on day one. Your first recommendations show up within 24 hours, and most users see results in the first month.
           </p>
         </motion.div>
       </div>

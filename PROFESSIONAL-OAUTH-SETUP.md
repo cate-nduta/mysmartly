@@ -42,7 +42,7 @@ When users sign in with Google, they see:
    - **Client Secret**: Your Google OAuth Client Secret
    - **Authorized redirect URLs**: 
      - `https://rmnjqlfbpomvklxgekgu.supabase.co/auth/v1/callback`
-     - `https://YOUR_DOMAIN.com/auth/callback` (if using custom domain)
+     - `https://mysmartly.app/auth/callback` (if using custom domain)
 
 ### Step 3: Use Custom Domain (Optional but Recommended)
 

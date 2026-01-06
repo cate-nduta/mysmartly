@@ -54,7 +54,7 @@ This creates:
 
 1. **Set up webhook URL in Paystack Dashboard:**
    - Go to Settings > Webhooks
-   - Add webhook URL: `https://yourdomain.com/api/paystack-webhook`
+   - Add webhook URL: `https://mysmartly.app/api/paystack-webhook`
    - Select events:
      - `charge.success`
      - `transaction.success`

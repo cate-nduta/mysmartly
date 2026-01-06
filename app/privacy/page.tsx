@@ -92,7 +92,10 @@ export default function PrivacyPage() {
           </header>
 
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-10">
-            <div dangerouslySetInnerHTML={{ __html: content }} />
+            <div 
+              className="legal-content"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
           </div>
         </div>
       </main>

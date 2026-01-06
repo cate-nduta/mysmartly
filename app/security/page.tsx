@@ -16,7 +16,7 @@ const defaultContent = `
     </span>
   </div>
   <p className="text-text-secondary text-lg leading-relaxed max-w-3xl mx-auto">
-    At mySmartly, security isn't an afterthought—it's foundational. We protect your business data with enterprise-grade security measures, regular audits, and transparent practices.
+    At mySmartly, security isn't an afterthought, it's foundational. We protect your business data with enterprise-grade security measures, regular audits, and transparent practices.
   </p>
 </section>
 `
@@ -97,7 +97,10 @@ export default function SecurityPage() {
           </header>
 
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 space-y-10">
-            <div dangerouslySetInnerHTML={{ __html: content }} />
+            <div 
+              className="legal-content"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
           </div>
         </div>
       </main>

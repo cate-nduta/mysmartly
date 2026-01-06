@@ -1,20 +1,18 @@
 import type { Metadata } from 'next'
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
-import SocialProofBar from '@/components/SocialProofBar'
 import ProblemStatement from '@/components/ProblemStatement'
 import WhoItsForTwoColumns from '@/components/WhoItsForTwoColumns'
-import TestimonialsWithResults from '@/components/TestimonialsWithResults'
 import FinalCTA from '@/components/FinalCTA'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
   title: 'mySmartly - AI Business Analyst | Automated Decision Making Platform',
-  description: 'Smart Decisions, AI-Validated. Every Time. mySmartly analyzes your business data and delivers actionable recommendations validated by AI. Get clear insights that drive real growth. 14-day free trial.',
+  description: 'Transform Data into Automated Business Decisions. 14-day free trial.',
   keywords: 'AI business analyst, business decision automation, data-driven decisions, automated business insights, AI business intelligence, business analytics platform',
   openGraph: {
     title: 'mySmartly - AI Business Analyst | Automated Decision Making Platform',
-    description: 'Smart Decisions, AI-Validated. Every Time. mySmartly analyzes your business data and delivers actionable recommendations validated by AI. Get clear insights that drive real growth.',
+    description: 'Transform Data into Automated Business Decisions',
     type: 'website',
     url: 'https://mysmartly.app',
     siteName: 'mySmartly',
@@ -87,10 +85,8 @@ export default function Home() {
       <main className="min-h-screen">
         <Header />
         <Hero />
-        <SocialProofBar />
         <ProblemStatement />
         <WhoItsForTwoColumns />
-        <TestimonialsWithResults />
         <FinalCTA />
         <Footer />
       </main>

@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       metadataBase: new URL(siteUrl),
       title: 'mysmartly - AI Driven Business Solutions',
-      description: 'mySmartly analyzes your data and tells you exactly what to do next. Get clear, actionable recommendations that drive real growth.',
+      description: 'Transform Data into Automated Business Decisions',
       keywords: 'business intelligence, decision automation, data analytics, AI business insights, automated decisions',
       icons: {
         icon: faviconUrl,
@@ -45,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       },
       openGraph: {
         title: 'mysmartly - AI Driven Business Solutions',
-        description: 'Smart Decisions, AI-Validated. Every Time.',
+        description: 'Transform Data into Automated Business Decisions',
         type: 'website',
         url: siteUrl,
         images: [
@@ -62,7 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
         // Fallback to default metadata if there's an error
         return {
           title: 'mysmartly - AI Driven Business Solutions',
-          description: 'mySmartly analyzes your data and tells you exactly what to do next. Get clear, actionable recommendations that drive real growth.',
+          description: 'Transform Data into Automated Business Decisions',
       keywords: 'business intelligence, decision automation, data analytics, AI business insights, automated decisions',
       icons: {
         icon: '/icon.svg',
@@ -71,7 +71,7 @@ export async function generateMetadata(): Promise<Metadata> {
       },
       openGraph: {
         title: 'mysmartly - AI Driven Business Solutions',
-        description: 'Smart Decisions, AI-Validated. Every Time.',
+        description: 'Transform Data into Automated Business Decisions',
         type: 'website',
       },
     }

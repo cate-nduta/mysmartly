@@ -88,3 +88,61 @@
 .bg-accent * {
   color: white;
 }
+
+/* Legal Page Content Styles */
+.legal-content h1,
+.legal-content h2,
+.legal-content h3,
+.legal-content h4,
+.legal-content h5,
+.legal-content h6 {
+  font-weight: 700;
+  color: #0F4C5C;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.legal-content h1 {
+  font-size: 2rem;
+  margin-top: 0;
+}
+
+.legal-content h2 {
+  font-size: 1.75rem;
+}
+
+.legal-content h3 {
+  font-size: 1.5rem;
+}
+
+.legal-content h4 {
+  font-size: 1.25rem;
+}
+
+.legal-content p {
+  margin-bottom: 1rem;
+  color: #6B7280;
+  line-height: 1.7;
+}
+
+.legal-content ul,
+.legal-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  color: #6B7280;
+}
+
+.legal-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.legal-content a {
+  color: #10B981;
+  text-decoration: underline;
+}
+
+.legal-content a:hover {
+  color: #059669;
+}

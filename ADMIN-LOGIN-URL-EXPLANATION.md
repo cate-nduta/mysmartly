@@ -5,7 +5,7 @@
 When you try to login as admin, you'll see different URLs depending on where you are in the process:
 
 ### 1. **Initial Admin Login Page**
-- **URL**: `https://yourdomain.com/admin` or `http://localhost:3000/admin`
+- **URL**: `https://mysmartly.app/admin` or `http://localhost:3000/admin`
 - **What you see**: "Admin Login" page with "Continue with Google" button
 - **This is your website's admin page**
 
@@ -17,10 +17,10 @@ When you try to login as admin, you'll see different URLs depending on where you
 ### 3. **After Google Sign-In**
 - **URL**: `https://rmnjqlfbpomvklxgekgu.supabase.co/auth/v1/callback?code=...`
 - **What happens**: Supabase processes the OAuth callback
-- **Then redirects to**: `https://yourdomain.com/auth/callback?admin=true`
+- **Then redirects to**: `https://mysmartly.app/auth/callback?admin=true`
 
 ### 4. **Final Redirect**
-- **URL**: `https://yourdomain.com/admin`
+- **URL**: `https://mysmartly.app/admin`
 - **What you see**: Admin dashboard (if authenticated and authorized)
 
 ## Why You See the Supabase URL
@@ -55,7 +55,7 @@ The URL `rmnjqlfbpomvklxgekgu.supabase.co` is your **Supabase project's authenti
 ## Current Admin Login Flow
 
 ```
-1. User visits: https://yourdomain.com/admin
+1. User visits: https://mysmartly.app/admin
    ↓
 2. Clicks "Continue with Google"
    ↓
@@ -68,7 +68,7 @@ The URL `rmnjqlfbpomvklxgekgu.supabase.co` is your **Supabase project's authenti
    ↓
 6. Supabase processes authentication
    ↓
-7. Supabase redirects to: https://yourdomain.com/auth/callback?admin=true
+7. Supabase redirects to: https://mysmartly.app/auth/callback?admin=true
    ↓
 8. Your app checks if user is admin
    ↓
@@ -98,7 +98,7 @@ The URL `rmnjqlfbpomvklxgekgu.supabase.co` is your **Supabase project's authenti
 
 **Never share the Supabase callback URL publicly!** 
 
-- ✅ **Share**: `https://yourdomain.com/admin` (your admin login page)
+- ✅ **Share**: `https://mysmartly.app/admin` (your admin login page)
 - ❌ **Don't share**: `https://rmnjqlfbpomvklxgekgu.supabase.co/auth/v1/callback` (internal OAuth callback)
 
 ## Summary

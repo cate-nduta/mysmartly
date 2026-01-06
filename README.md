@@ -11,7 +11,7 @@ A modern landing page for mySmartly.app built with Next.js 14, TypeScript, Tailw
 - Careers page with job listings
 - Admin dashboard for managing pricing and jobs
 - Job application system with resume upload
-- Deploy-ready for Vercel
+- Deploy-ready for Netlify
 
 ## Getting Started
 
@@ -125,17 +125,19 @@ The admin dashboard allows you to:
 
 ## Deployment
 
-### Deploy to Vercel
+### Deploy to Netlify
 
 1. Push your code to GitHub
-2. Import your repository in [Vercel](https://vercel.com)
-3. Add your environment variables in Vercel dashboard:
+2. Connect your repository to [Netlify](https://netlify.com)
+3. Build command: `npm run build`
+4. Publish directory: `.next`
+5. Add your environment variables in Netlify dashboard:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `NEXT_PUBLIC_ADMIN_PASSWORD`
-4. Deploy!
+6. Deploy!
 
-The project is configured for Vercel with `vercel.json`.
+The project uses the `@netlify/plugin-nextjs` plugin for optimal Next.js support.
 
 ## License
 

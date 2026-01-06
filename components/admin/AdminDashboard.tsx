@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PricingManagement from './PricingManagement'
 import JobsManagement from './JobsManagement'
 import ApplicationsManagement from './ApplicationsManagement'
@@ -23,9 +23,44 @@ interface AdminDashboardProps {
   onLogout?: () => void
 }
 
+const STORAGE_KEY = 'admin_active_tab'
+
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('pricing')
+  // Load active tab from localStorage on mount, default to 'pricing'
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      const savedTab = localStorage.getItem(STORAGE_KEY) as Tab | null
+      if (savedTab && ['pricing', 'jobs', 'applications', 'email-logs', 'team', 'contact', 'settings', 'blogs', 'case-studies', 'guides', 'webinars', 'who-its-for', 'waitlist', 'legal-pages'].includes(savedTab)) {
+        return savedTab
+      }
+    }
+    return 'pricing'
+  })
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  // Save active tab to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, activeTab)
+    }
+  }, [activeTab])
+
+  // Load sidebar state from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSidebarState = localStorage.getItem('admin_sidebar_open')
+      if (savedSidebarState !== null) {
+        setSidebarOpen(savedSidebarState === 'true')
+      }
+    }
+  }, [])
+
+  // Save sidebar state to localStorage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('admin_sidebar_open', String(sidebarOpen))
+    }
+  }, [sidebarOpen])
 
   // Enable session timeout (1 hour inactivity) for admin dashboard
   useSessionTimeout()

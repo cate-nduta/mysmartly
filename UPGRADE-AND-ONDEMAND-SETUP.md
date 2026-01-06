@@ -72,29 +72,18 @@ All tables are created in `add-dashboard-tables.sql`:
 
 You need to set up a daily cron job to check for invoices that need to be sent.
 
-### Option 1: Vercel Cron (Recommended)
-Add to `vercel.json`:
-```json
-{
-  "crons": [{
-    "path": "/api/check-ondemand-invoices",
-    "schedule": "0 9 * * *"
-  }]
-}
-```
-
-### Option 2: External Cron Service
+### Option 1: External Cron Service (Recommended)
 Use a service like:
 - **cron-job.org**
 - **EasyCron**
 - **Cronitor**
 
-Set it to call: `https://yourdomain.com/api/check-ondemand-invoices` daily at 9 AM.
+Set it to call: `https://mysmartly.app/api/check-ondemand-invoices` daily at 9 AM.
 
 ### Option 3: Server Cron (if self-hosted)
 ```bash
 # Add to crontab
-0 9 * * * curl -X POST https://yourdomain.com/api/check-ondemand-invoices
+0 9 * * * curl -X POST https://mysmartly.app/api/check-ondemand-invoices
 ```
 
 ## Email Configuration

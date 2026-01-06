@@ -93,9 +93,9 @@
   to the Authorized redirect URIs in Google Cloud Console
 
 ### For Production
-- When deploying to production (e.g., Vercel), add your production domain:
+- When deploying to production (Netlify), add your production domain:
   ```
-  https://yourdomain.com/auth/callback
+  https://mysmartly.app/auth/callback
   ```
 
 ## Troubleshooting

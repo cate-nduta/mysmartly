@@ -80,7 +80,7 @@ export default function ProblemStatement() {
           className="mt-10 text-center"
         >
           <p className="text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
-            The average business owner spends 12 hours per week analyzing data, yet only 15% of these insights result in action. The problem isn&apos;t a lack of data—it&apos;s the absence of clear, actionable recommendations that bridge the gap between information and execution.
+            The average business owner spends 12 hours per week analyzing data, yet only 15% of those insights turn into action. The problem isn&apos;t a lack of data, it&apos;s not knowing what to do with it.
           </p>
         </motion.div>
       </div>

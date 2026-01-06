@@ -40,7 +40,7 @@ export default function PricingPage() {
               Get your automated business analyst. Choose the plan that fits your business needs.
             </p>
             <p className="text-lg text-text-secondary max-w-3xl mx-auto leading-relaxed">
-              Every plan includes our core decision automation features. Scale up as your business grows and you need more data connections, recommendations, and advanced analytics. All plans come with a 14-day free trial—no credit card required.
+              Every plan includes our core decision automation features. Scale up as your business grows and you need more data connections, recommendations, and advanced analytics. All plans come with a 14-day free trial, no credit card required.
             </p>
           </div>
         </div>
@@ -56,14 +56,14 @@ export default function PricingPage() {
               What&apos;s Included in Every Plan
             </h2>
             <p className="text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed">
-              All mySmartly plans include the essential features you need to automate business decisions and drive growth.
+              All mySmartly plans include the essential features you need to automate business decisions.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl border border-gray-200">
               <h3 className="text-xl font-semibold text-primary mb-4">AI-Powered Recommendations</h3>
               <p className="text-text-secondary leading-relaxed">
-                Get actionable business recommendations based on your data. Each suggestion includes projected impact and implementation steps.
+                Get business recommendations based on your data. Each suggestion shows projected impact and how to implement it.
               </p>
             </div>
             <div className="bg-white p-8 rounded-xl border border-gray-200">

@@ -188,13 +188,13 @@ Supabase provides the following variables you can use in email templates:
    - Go to **Authentication** → **URL Configuration**
    - Add your redirect URLs:
      - Development: `http://localhost:3000/auth/reset-password`
-     - Production: `https://yourdomain.com/auth/reset-password`
+     - Production: `https://mysmartly.app/auth/reset-password`
 
 2. **Site URL Configuration:**
    - In **Authentication** → **URL Configuration**
    - Set **Site URL**:
      - Development: `http://localhost:3000`
-     - Production: `https://yourdomain.com`
+     - Production: `https://mysmartly.app`
 
 ## Email Provider Settings
 
