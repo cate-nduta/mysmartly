@@ -1,10 +1,10 @@
 ﻿'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
-import { signUpWithEmail } from '@/lib/supabase-auth'
+import { signUpWithEmail, signInWithGoogle } from '@/lib/supabase-auth'
 import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import OnboardingQuestionnaire from '@/components/OnboardingQuestionnaire'
@@ -23,6 +23,15 @@ function SignupContent() {
   const [success, setSuccess] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [newUserId, setNewUserId] = useState<string | null>(null)
+
+  // Check for OAuth errors in URL
+  useEffect(() => {
+    const oauthError = searchParams.get('error')
+    const errorDescription = searchParams.get('error_description')
+    if (oauthError) {
+      setError(errorDescription || 'Authentication failed. Please try again.')
+    }
+  }, [searchParams])
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,6 +85,20 @@ function SignupContent() {
         const trialEnd = new Date()
         trialEnd.setDate(trialEnd.getDate() + 14)
 
+        // Get plan limits to calculate trial limits (half of plan limits)
+        const { data: planData } = await supabase
+          .from('pricing_plans')
+          .select('tokens_limit, decisions_limit')
+          .eq('name', planName)
+          .single()
+
+        const planTokensLimit = planData?.tokens_limit || 250
+        const planDecisionsLimit = planData?.decisions_limit || 150
+        
+        // Trial gets half of plan limits
+        const trialTokensLimit = Math.floor(planTokensLimit / 2)
+        const trialDecisionsLimit = Math.floor(planDecisionsLimit / 2)
+
         await supabase
           .from('user_subscriptions')
           .insert([{
@@ -85,6 +108,8 @@ function SignupContent() {
             current_period_start: new Date().toISOString(),
             current_period_end: trialEnd.toISOString(),
             trial_end: trialEnd.toISOString(),
+            tokens_limit: trialTokensLimit,
+            decisions_limit: trialDecisionsLimit,
           }])
 
         // Check if we have a session (email confirmation disabled)
@@ -113,20 +138,14 @@ function SignupContent() {
     setError(null)
 
     try {
-      const redirectUrl = `/auth/signup?plan=${planName}`
-      const supabaseClient = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      
-      const { error: oauthError } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
-        },
-      })
-      
+      // Use signInWithGoogle with isSignup=true to indicate this is a signup flow
+      // The callback will check if user has account and redirect appropriately:
+      // - If user has account (onboarding exists) → Dashboard (existing user)
+      // - If no account (no onboarding) → Onboarding (new user)
+      const { error: oauthError } = await signInWithGoogle(false, true) // admin=false, isSignup=true
       if (oauthError) throw oauthError
+      // OAuth redirect will happen automatically via callback
+      // Don't set loading to false here as the page will redirect
     } catch (err: any) {
       setError(err.message || 'Failed to sign up with Google')
       setLoading(false)

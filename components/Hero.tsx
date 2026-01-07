@@ -33,12 +33,13 @@ export default function Hero() {
               >
                 Start Free Trial
               </Link>
-              <button
+              <Link
+                href="/demo"
                 data-cta="hero-secondary"
                 className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary border-2 border-gray-300 rounded-lg font-medium text-lg hover:border-accent hover:text-accent transition-colors"
               >
-                Watch Demo (2 min)
-              </button>
+                Watch Demo
+              </Link>
             </div>
             <p className="text-sm text-text-secondary">
               No credit card required • 14-day free trial • Setup in under 30 minutes
@@ -55,8 +56,7 @@ export default function Hero() {
             <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6">
               {/* Dashboard Header */}
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-                <h3 className="font-semibold text-primary">Decision Feed</h3>
-                <span className="text-sm text-text-secondary">Today</span>
+                <h3 className="font-semibold text-primary">Decision Feed — Today</h3>
               </div>
 
               {/* Recommendation Cards */}
@@ -67,11 +67,12 @@ export default function Hero() {
                   transition={{ delay: 0.4 }}
                   className="bg-emerald-50 border-l-4 border-accent p-4 rounded-lg"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="font-semibold text-primary">Increase Ad Budget by 15%</span>
-                    <span className="text-xs bg-accent text-white px-2 py-1 rounded">High Impact</span>
+                  <div className="mb-2">
+                    <h4 className="font-semibold text-primary mb-1">Increase Ad Budget by 15%</h4>
+                    <span className="text-xs text-text-secondary">High Impact • Low Risk</span>
                   </div>
-                  <p className="text-sm text-text-secondary">Projected revenue: +$18,750</p>
+                  <p className="text-sm font-medium text-primary mb-1">Estimated impact: +$18,750 revenue</p>
+                  <p className="text-xs text-text-secondary">Based on stable ROAS and capped spend over the last 60 days</p>
                 </motion.div>
 
                 <motion.div
@@ -80,11 +81,12 @@ export default function Hero() {
                   transition={{ delay: 0.5 }}
                   className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="font-semibold text-primary">Lower Inventory for Product X</span>
-                    <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded">Cost Save</span>
+                  <div className="mb-2">
+                    <h4 className="font-semibold text-primary mb-1">Lower Inventory for Product X</h4>
+                    <span className="text-xs text-text-secondary">Cost Optimization</span>
                   </div>
-                  <p className="text-sm text-text-secondary">Reduce holding costs by $4,200/month</p>
+                  <p className="text-sm font-medium text-primary mb-1">Estimated savings: $4,200/month</p>
+                  <p className="text-xs text-text-secondary">Based on declining sell-through and excess stock levels</p>
                 </motion.div>
 
                 <motion.div
@@ -93,11 +95,12 @@ export default function Hero() {
                   transition={{ delay: 0.6 }}
                   className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="font-semibold text-primary">Focus Retention on At-Risk Customers</span>
-                    <span className="text-xs bg-purple-500 text-white px-2 py-1 rounded">Urgent</span>
+                  <div className="mb-2">
+                    <h4 className="font-semibold text-primary mb-1">Focus Retention on 45 At-Risk Customers</h4>
+                    <span className="text-xs text-text-secondary">Urgent</span>
                   </div>
-                  <p className="text-sm text-text-secondary">Save $22,500 in potential churn</p>
+                  <p className="text-sm font-medium text-primary mb-1">Estimated churn prevention: $22,500</p>
+                  <p className="text-xs text-text-secondary">Based on reduced engagement and historical churn patterns</p>
                 </motion.div>
               </div>
 
@@ -107,7 +110,7 @@ export default function Hero() {
                   Approve All
                 </button>
                 <button className="flex-1 bg-gray-100 text-primary py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                  Review
+                  Review Individually
                 </button>
               </div>
             </div>

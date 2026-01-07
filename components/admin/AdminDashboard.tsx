@@ -15,9 +15,11 @@ import WebinarsManagement from './WebinarsManagement'
 import WhoItsForManagement from './WhoItsForManagement'
 import WaitlistManagement from './WaitlistManagement'
 import LegalPagesManagement from './LegalPagesManagement'
+import DemoVideoManagement from './DemoVideoManagement'
+import UserManagement from './UserManagement'
 import { useSessionTimeout } from '@/hooks/useSessionTimeout'
 
-type Tab = 'pricing' | 'jobs' | 'applications' | 'email-logs' | 'team' | 'contact' | 'settings' | 'blogs' | 'case-studies' | 'guides' | 'webinars' | 'who-its-for' | 'waitlist' | 'legal-pages'
+type Tab = 'pricing' | 'jobs' | 'applications' | 'email-logs' | 'team' | 'contact' | 'settings' | 'blogs' | 'case-studies' | 'guides' | 'webinars' | 'who-its-for' | 'waitlist' | 'legal-pages' | 'demo-video' | 'users'
 
 interface AdminDashboardProps {
   onLogout?: () => void
@@ -30,7 +32,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const savedTab = localStorage.getItem(STORAGE_KEY) as Tab | null
-      if (savedTab && ['pricing', 'jobs', 'applications', 'email-logs', 'team', 'contact', 'settings', 'blogs', 'case-studies', 'guides', 'webinars', 'who-its-for', 'waitlist', 'legal-pages'].includes(savedTab)) {
+      if (savedTab && ['pricing', 'jobs', 'applications', 'email-logs', 'team', 'contact', 'settings', 'blogs', 'case-studies', 'guides', 'webinars', 'who-its-for', 'waitlist', 'legal-pages', 'demo-video', 'users'].includes(savedTab)) {
         return savedTab
       }
     }
@@ -202,6 +204,24 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </svg>
       ),
     },
+    {
+      id: 'demo-video' as Tab,
+      name: 'Demo Video',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'users' as Tab,
+      name: 'Users',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+    },
   ]
 
   return (
@@ -308,6 +328,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           {activeTab === 'who-its-for' && <WhoItsForManagement />}
           {activeTab === 'waitlist' && <WaitlistManagement />}
           {activeTab === 'legal-pages' && <LegalPagesManagement />}
+          {activeTab === 'demo-video' && <DemoVideoManagement />}
+          {activeTab === 'users' && <UserManagement />}
         </main>
       </div>
     </div>

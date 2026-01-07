@@ -108,6 +108,16 @@ async function handleSuccessfulPayment(data: any, supabase: any) {
       const periodEnd = new Date()
       periodEnd.setDate(periodEnd.getDate() + 30)
 
+      // Get plan limits for the paid plan
+      const { data: planData } = await supabase
+        .from('pricing_plans')
+        .select('tokens_limit, decisions_limit')
+        .eq('name', planName)
+        .single()
+
+      const planTokensLimit = planData?.tokens_limit || 250
+      const planDecisionsLimit = planData?.decisions_limit || 150
+
       const { data: subscriptionData } = await supabase
         .from('user_subscriptions')
         .select('id')
@@ -121,6 +131,8 @@ async function handleSuccessfulPayment(data: any, supabase: any) {
             status: 'active',
             current_period_start: periodStart.toISOString(),
             current_period_end: periodEnd.toISOString(),
+            tokens_limit: planTokensLimit, // Full plan limits for paid subscriptions
+            decisions_limit: planDecisionsLimit, // Full plan limits for paid subscriptions
             updated_at: new Date().toISOString(),
           })
           .eq('id', subscriptionData.id)

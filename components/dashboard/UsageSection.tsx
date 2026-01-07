@@ -120,21 +120,63 @@ export default function UsageSection({ userId, plan, subscription }: UsageSectio
   // Check if user is on free trial
   const isFreeTrial = !subscription || subscription.status === 'trial'
   
-  // Get plan limits from current plan
-  const limits: PlanLimits = plan ? getPlanLimits(plan.features || []) : { connections: null, recommendations: null, tokens: null }
+  // Priority order for getting limits:
+  // 1. Subscription limits (if set - these are correct for trial/paid)
+  // 2. Plan limits (from pricing_plans.tokens_limit and decisions_limit)
+  // 3. For trial: half of plan limits
+  // 4. Fallback: parse from features (backward compatibility)
   
-  // For free trial, get half of Starter plan limits
-  let effectiveLimits: PlanLimits
-  if (isFreeTrial && starterPlan) {
-    const starterLimits = getPlanLimits(starterPlan.features || [])
-    effectiveLimits = {
-      recommendations: starterLimits.recommendations ? Math.floor(starterLimits.recommendations / 2) : null,
-      tokens: starterLimits.tokens ? Math.floor(starterLimits.tokens / 2) : null,
-      connections: starterLimits.connections ? Math.floor(starterLimits.connections / 2) : null,
+  let effectiveLimits: PlanLimits = {
+    recommendations: null,
+    tokens: null,
+    connections: null,
+  }
+  
+  // First, try to get from subscription (most accurate)
+  if (subscription?.decisions_limit !== null && subscription?.decisions_limit !== undefined) {
+    effectiveLimits.recommendations = subscription.decisions_limit
+  }
+  if (subscription?.tokens_limit !== null && subscription?.tokens_limit !== undefined) {
+    effectiveLimits.tokens = subscription.tokens_limit
+  }
+  
+  // If subscription doesn't have limits, get from plan
+  if (plan) {
+    // For trials, always use Starter plan limits (half of Starter), not the user's plan
+    if (isFreeTrial) {
+      // Use Starter plan from state (already fetched in useEffect)
+      if (starterPlan) {
+        if (effectiveLimits.recommendations === null && starterPlan.decisions_limit !== null && starterPlan.decisions_limit !== undefined) {
+          // Trial gets half of Starter plan limits
+          effectiveLimits.recommendations = Math.floor(starterPlan.decisions_limit / 2)
+        }
+        
+        if (effectiveLimits.tokens === null && starterPlan.tokens_limit !== null && starterPlan.tokens_limit !== undefined) {
+          // Trial gets half of Starter plan limits
+          effectiveLimits.tokens = Math.floor(starterPlan.tokens_limit / 2)
+        }
+      }
+    } else {
+      // Paid users get full plan limits
+      if (effectiveLimits.recommendations === null && plan.decisions_limit !== null && plan.decisions_limit !== undefined) {
+        effectiveLimits.recommendations = plan.decisions_limit
+      }
+      
+      if (effectiveLimits.tokens === null && plan.tokens_limit !== null && plan.tokens_limit !== undefined) {
+        effectiveLimits.tokens = plan.tokens_limit
+      }
     }
-  } else {
-    // Use actual plan limits
-    effectiveLimits = limits
+  }
+  
+  // Final fallback: if still null, try parsing features (for backward compatibility)
+  if ((effectiveLimits.recommendations === null || effectiveLimits.tokens === null) && plan) {
+    const limits: PlanLimits = getPlanLimits(plan.features || [])
+    if (effectiveLimits.recommendations === null) {
+      effectiveLimits.recommendations = limits.recommendations
+    }
+    if (effectiveLimits.tokens === null) {
+      effectiveLimits.tokens = limits.tokens
+    }
   }
   
   // Check if limits are reached

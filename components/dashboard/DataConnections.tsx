@@ -14,18 +14,20 @@ interface DataConnection {
 }
 
 const availableConnections = [
-  { type: 'google_analytics', name: 'Google Analytics', icon: 'analytics' },
+  { type: 'google_analytics', name: 'Google Analytics 4', icon: 'analytics' },
+  { type: 'google_ads', name: 'Google Ads', icon: 'google_ads' },
   { type: 'shopify', name: 'Shopify', icon: 'shopify' },
-  { type: 'stripe', name: 'Stripe', icon: 'stripe' },
-  { type: 'facebook_ads', name: 'Facebook Ads', icon: 'facebook' },
+  { type: 'instagram_page', name: 'Instagram Page', icon: 'instagram' },
+  { type: 'instagram_ads', name: 'Instagram Ads', icon: 'instagram' },
+]
+
+const comingSoonConnections = [
   { type: 'quickbooks', name: 'QuickBooks', icon: 'quickbooks' },
-  { type: 'salesforce', name: 'Salesforce', icon: 'salesforce' },
   { type: 'hubspot', name: 'HubSpot', icon: 'hubspot' },
-  { type: 'microsoft_dynamics', name: 'Microsoft Dynamics 365', icon: 'microsoft' },
-  { type: 'oracle', name: 'Oracle Cloud', icon: 'oracle' },
-  { type: 'sap', name: 'SAP', icon: 'sap' },
-  { type: 'tableau', name: 'Tableau', icon: 'tableau' },
   { type: 'zendesk', name: 'Zendesk', icon: 'zendesk' },
+  { type: 'youtube_ads', name: 'YouTube Ads', icon: 'youtube' },
+  { type: 'tiktok_ads', name: 'TikTok Ads', icon: 'tiktok' },
+  { type: 'facebook_ads', name: 'Facebook Ads', icon: 'facebook' },
 ]
 
 const getConnectionIcon = (iconType: string) => {
@@ -102,6 +104,30 @@ const getConnectionIcon = (iconType: string) => {
           <path d="M12.914 2.904V16.29L24 2.904H12.914zM0 2.906l11.086 13.388V2.906H0zm11.086 18.19v-6.494L0 21.096h11.086zm12.828 0L12.828 14.602v6.494H23.914z"/>
         </svg>
       )
+    case 'google_ads':
+      return (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      )
+    case 'instagram':
+      return (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+      )
+    case 'youtube':
+      return (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      )
+    case 'tiktok':
+      return (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+        </svg>
+      )
     default:
       return (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,20 +141,124 @@ export default function DataConnections({ userId }: { userId: string }) {
   const [connections, setConnections] = useState<DataConnection[]>([])
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState<string | null>(null)
+  const [redirecting, setRedirecting] = useState<string | null>(null) // Track which connection is redirecting
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedConnection, setSelectedConnection] = useState<{ type: string; name: string } | null>(null)
+  const [disconnectModalOpen, setDisconnectModalOpen] = useState(false)
+  const [connectionToDisconnect, setConnectionToDisconnect] = useState<string | null>(null)
+  const [disconnecting, setDisconnecting] = useState(false)
+  const [allowedApplications, setAllowedApplications] = useState<string[]>([]) // Apps allowed for user's tier
 
   useEffect(() => {
+    // Always fetch fresh data when component mounts or userId changes
+    // Clear any cached data first
+    setConnections([])
+    setLoading(true)
+    fetchUserPlan()
     fetchConnections()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
+  const fetchUserPlan = async () => {
+    try {
+      // Get user's subscription to determine their plan (including trial)
+      const { data: subscription } = await supabase
+        .from('user_subscriptions')
+        .select('plan_name, status')
+        .eq('user_id', userId)
+        .single()
+
+      if (subscription?.plan_name) {
+        // Fetch the plan details to get available applications
+        // This works for both trial and active subscriptions
+        const { data: plan } = await supabase
+          .from('pricing_plans')
+          .select('available_applications')
+          .eq('name', subscription.plan_name)
+          .single()
+
+        if (plan?.available_applications && plan.available_applications.length > 0) {
+          // Show only apps configured for this tier (works for trial and paid)
+          setAllowedApplications(plan.available_applications)
+        } else {
+          // If no apps configured, show all (fallback for backward compatibility)
+          setAllowedApplications(availableConnections.map(c => c.type).concat(comingSoonConnections.map(c => c.type)))
+        }
+      } else {
+        // No subscription - default to Starter plan apps (for new users before subscription is created)
+        const { data: starterPlan } = await supabase
+          .from('pricing_plans')
+          .select('available_applications')
+          .eq('name', 'Starter')
+          .single()
+
+        if (starterPlan?.available_applications && starterPlan.available_applications.length > 0) {
+          setAllowedApplications(starterPlan.available_applications)
+        } else {
+          // Fallback: show all apps
+          setAllowedApplications(availableConnections.map(c => c.type).concat(comingSoonConnections.map(c => c.type)))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user plan:', error)
+      // On error, default to Starter plan apps
+      try {
+        const { data: starterPlan } = await supabase
+          .from('pricing_plans')
+          .select('available_applications')
+          .eq('name', 'Starter')
+          .single()
+
+        if (starterPlan?.available_applications && starterPlan.available_applications.length > 0) {
+          setAllowedApplications(starterPlan.available_applications)
+        } else {
+          setAllowedApplications(availableConnections.map(c => c.type).concat(comingSoonConnections.map(c => c.type)))
+        }
+      } catch (fallbackError) {
+        // Final fallback: show all apps
+        setAllowedApplications(availableConnections.map(c => c.type).concat(comingSoonConnections.map(c => c.type)))
+      }
+    }
+  }
+
+  // Check for connection success query param and refetch
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const connected = params.get('connected')
+    if (connected) {
+      // Refetch connections to show updated status
+      fetchConnections()
+      // Remove query param from URL
+      const newUrl = new URL(window.location.href)
+      newUrl.searchParams.delete('connected')
+      window.history.replaceState({}, '', newUrl.toString())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Also refetch when window gains focus (user returns to tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchConnections()
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
   const fetchConnections = async () => {
     try {
+      // Force fresh data - no caching
+      // Clear state first to avoid showing stale data
+      setConnections([])
+      
       const { data, error } = await supabase
         .from('data_connections')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
+        // Add cache-busting filter (always true, but forces fresh query)
+        .gte('created_at', new Date(0).toISOString())
 
       if (error) throw error
       setConnections(data || [])
@@ -139,7 +269,55 @@ export default function DataConnections({ userId }: { userId: string }) {
     }
   }
 
-  const handleConnectClick = (connectionType: string, connectionName: string) => {
+  const handleConnectClick = async (connectionType: string, connectionName: string) => {
+    // Prevent double-clicks
+    if (redirecting || connecting) {
+      return
+    }
+
+    // Google Analytics, Instagram Page, and Instagram Ads use OAuth flow
+    if (connectionType === 'google_analytics' || connectionType === 'instagram_page' || connectionType === 'instagram_ads') {
+      try {
+        // Set redirecting state to show loading message
+        setRedirecting(connectionType)
+
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setRedirecting(null)
+          alert(`Please sign in to connect ${connectionName}`)
+          return
+        }
+
+        // Determine provider name and OAuth endpoint
+        let oauthUrl: URL
+        if (connectionType === 'google_analytics') {
+          // Google Analytics OAuth
+          oauthUrl = new URL('/api/oauth/google', window.location.origin)
+          oauthUrl.searchParams.set('userId', user.id)
+          oauthUrl.searchParams.set('connectionType', 'google_analytics')
+        } else {
+          // Meta OAuth (Instagram)
+          oauthUrl = new URL('/api/oauth/meta', window.location.origin)
+          oauthUrl.searchParams.set('userId', user.id)
+          oauthUrl.searchParams.set('type', connectionType) // 'instagram_page' or 'instagram_ads'
+          oauthUrl.searchParams.set('redirectUri', `${window.location.origin}/api/oauth/meta/callback`)
+        }
+
+        // Show loading message (will be replaced by redirect)
+        // Small delay to ensure message is visible
+        await new Promise(resolve => setTimeout(resolve, 300))
+        
+        window.location.href = oauthUrl.toString()
+      } catch (error: any) {
+        console.error('Error initiating OAuth:', error)
+        setRedirecting(null)
+        alert(`Failed to start ${connectionName} connection. Please try again.`)
+      }
+      return
+    }
+
+    // For other connections, use the modal
     setSelectedConnection({ type: connectionType, name: connectionName })
     setModalOpen(true)
   }
@@ -188,6 +366,18 @@ export default function DataConnections({ userId }: { userId: string }) {
             config.accountId = connectionDetails.accountId
           }
           break
+        case 'google_ads':
+          if (connectionDetails.accountId) {
+            connectionUrl = `https://ads.google.com/aw/overview?authuser=0&ocid=0&cmpid=0&accountId=${connectionDetails.accountId}`
+            config.accountId = connectionDetails.accountId
+          }
+          break
+        case 'instagram_ads':
+          if (connectionDetails.accountId) {
+            connectionUrl = `https://business.facebook.com/adsmanager/manage/campaigns?act=${connectionDetails.accountId}`
+            config.accountId = connectionDetails.accountId
+          }
+          break
         case 'facebook_ads':
           if (connectionDetails.accountId) {
             connectionUrl = `https://business.facebook.com/adsmanager/manage/campaigns?act=${connectionDetails.accountId}`
@@ -230,7 +420,7 @@ export default function DataConnections({ userId }: { userId: string }) {
         throw new Error('Connection URL is required')
       }
 
-      const { error } = await supabase
+      const { data: newConnection, error } = await supabase
         .from('data_connections')
         .insert([{
           user_id: userId,
@@ -240,12 +430,39 @@ export default function DataConnections({ userId }: { userId: string }) {
           connection_config: config,
           last_sync_at: new Date().toISOString(),
         }])
+        .select()
+        .single()
 
       if (error) throw error
       
       setModalOpen(false)
       setSelectedConnection(null)
       await fetchConnections()
+      
+      // Sync analytics data if this is a Google Analytics connection
+      if (selectedConnection.type === 'google_analytics' && newConnection) {
+        try {
+          // Trigger analytics data sync in the background
+          fetch('/api/analytics/sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId,
+              connectionId: newConnection.id,
+            }),
+          }).catch(error => {
+            console.error('Error syncing analytics data:', error)
+            // Don't fail the connection if sync fails
+          })
+        } catch (error) {
+          console.error('Error initiating analytics sync:', error)
+          // Don't fail the connection if sync fails
+        }
+      }
+      
+      // Recommendations will be generated from chatbot conversations, not automatically
     } catch (error: any) {
       console.error('Error connecting:', error)
       alert(error.message || 'Failed to connect. Please try again.')
@@ -254,24 +471,43 @@ export default function DataConnections({ userId }: { userId: string }) {
     }
   }
 
-  const handleDisconnect = async (connectionId: string) => {
-    if (!confirm('Are you sure you want to disconnect this data source?')) return
+  const handleDisconnect = (connectionId: string) => {
+    setConnectionToDisconnect(connectionId)
+    setDisconnectModalOpen(true)
+  }
 
+  const confirmDisconnect = async () => {
+    if (!connectionToDisconnect) return
+
+    setDisconnecting(true)
     try {
       const { error } = await supabase
         .from('data_connections')
         .delete()
-        .eq('id', connectionId)
+        .eq('id', connectionToDisconnect)
 
       if (error) throw error
       await fetchConnections()
+      setDisconnectModalOpen(false)
+      setConnectionToDisconnect(null)
     } catch (error) {
       console.error('Error disconnecting:', error)
       alert('Failed to disconnect. Please try again.')
+    } finally {
+      setDisconnecting(false)
     }
   }
 
+  const cancelDisconnect = () => {
+    setDisconnectModalOpen(false)
+    setConnectionToDisconnect(null)
+  }
+
   const getConnectionStatus = (type: string) => {
+    // For Instagram connections, only return if status is 'connected' (not pending)
+    if (type === 'instagram_ads' || type === 'instagram_page') {
+      return connections.find(c => c.connection_type === type && c.status === 'connected')
+    }
     return connections.find(c => c.connection_type === type)
   }
 
@@ -284,16 +520,73 @@ export default function DataConnections({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-8">
+    <>
+      {/* Disconnect Confirmation Modal */}
+      {disconnectModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-primary mb-2">Disconnect Data Source</h3>
+              <p className="text-text-secondary">
+                Are you sure you want to disconnect this data source? This action cannot be undone and you'll need to reconnect it to use it again.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={cancelDisconnect}
+                disabled={disconnecting}
+                className="flex-1 px-4 py-3 bg-gray-100 text-primary rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDisconnect}
+                disabled={disconnecting}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {disconnecting ? 'Disconnecting...' : 'Disconnect'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl border border-gray-200 p-8 relative">
+        {/* Loading Overlay for OAuth Redirect */}
+      {redirecting && (
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center rounded-xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+            <p className="text-lg font-semibold text-primary mb-2">
+              {redirecting === 'instagram_page' || redirecting === 'instagram_ads'
+                ? 'Redirecting you to Meta...'
+                : redirecting === 'stripe'
+                ? 'Redirecting you to Stripe...'
+                : redirecting === 'shopify'
+                ? 'Redirecting you to Shopify...'
+                : `Redirecting you to ${redirecting}...`}
+            </p>
+            <p className="text-sm text-text-secondary">Please wait, do not close this window.</p>
+          </div>
+        </div>
+      )}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-primary mb-2">Data Connections</h2>
+        <h2 className="text-2xl font-bold text-primary mb-2">Connect the tools that drive your revenue</h2>
         <p className="text-text-secondary">
-          Connect your business tools to get AI-powered insights and recommendations
+          Start with Google Ads, Analytics, Shopify. Add more as your business grows.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {availableConnections.map((conn) => {
+      {/* Available Connections */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-primary mb-4">Data Connections</h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {availableConnections
+            .filter(conn => allowedApplications.length > 0 && allowedApplications.includes(conn.type))
+            .map((conn) => {
           const existing = getConnectionStatus(conn.type)
           const isConnecting = connecting === conn.type
 
@@ -337,16 +630,64 @@ export default function DataConnections({ userId }: { userId: string }) {
               ) : (
                 <button
                   onClick={() => handleConnectClick(conn.type, conn.name)}
-                  disabled={isConnecting}
+                  disabled={isConnecting || redirecting === conn.type}
                   className="w-full px-3 py-2 bg-accent text-white rounded text-sm font-medium hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isConnecting ? 'Connecting...' : 'Connect'}
+                  {redirecting === conn.type 
+                    ? (conn.type === 'instagram_page' || conn.type === 'instagram_ads' 
+                        ? 'Redirecting to Meta...' 
+                        : conn.type === 'stripe'
+                        ? 'Redirecting to Stripe...'
+                        : conn.type === 'shopify'
+                        ? 'Redirecting to Shopify...'
+                        : 'Redirecting...')
+                    : isConnecting 
+                      ? 'Connecting...' 
+                      : 'Connect'}
                 </button>
               )}
             </div>
           )
         })}
+        </div>
       </div>
+
+      {/* Coming Soon Connections - Only show if there are coming soon apps for this tier */}
+      {comingSoonConnections
+        .filter(conn => allowedApplications.length > 0 && allowedApplications.includes(conn.type))
+        .length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-primary mb-4">Coming Soon</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {comingSoonConnections
+              .filter(conn => allowedApplications.includes(conn.type))
+              .map((conn) => (
+            <div
+              key={conn.type}
+              className="p-4 border-2 border-gray-200 rounded-lg bg-gray-50 opacity-75"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="text-gray-400">
+                    {getConnectionIcon(conn.icon)}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-primary">{conn.name}</h3>
+                    <p className="text-xs text-gray-500">Coming Soon</p>
+                  </div>
+                </div>
+              </div>
+              <button
+                disabled
+                className="w-full px-3 py-2 bg-gray-200 text-gray-500 rounded text-sm font-medium cursor-not-allowed"
+              >
+                Coming Soon
+              </button>
+            </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-sm text-blue-800">
@@ -368,6 +709,7 @@ export default function DataConnections({ userId }: { userId: string }) {
           connecting={connecting === selectedConnection.type}
         />
       )}
-    </div>
+      </div>
+    </>
   )
 }

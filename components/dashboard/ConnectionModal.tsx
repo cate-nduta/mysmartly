@@ -22,12 +22,52 @@ const getConnectionFields = (connectionType: string) => {
     case 'google_analytics':
       return {
         title: 'Connect Google Analytics',
-        description: 'Enter your Google Analytics property ID or account URL',
+        description: 'Enter your Google Analytics Property ID. You can find it in your Analytics URL or in Admin settings.',
         fields: [
           {
             name: 'propertyId',
-            label: 'Property ID or Account URL',
-            placeholder: 'e.g., GA4-123456789 or https://analytics.google.com/analytics/web/#/p123456789',
+            label: 'Property ID',
+            placeholder: 'e.g., 123456789 (the number after /p/ in your Analytics URL)',
+            type: 'text',
+            required: true,
+          },
+        ],
+        helpText: (
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+            <p className="font-semibold mb-2">How to find your Property ID:</p>
+            <ol className="list-decimal list-inside space-y-1 ml-2">
+              <li>Go to your Google Analytics dashboard</li>
+              <li>Look at the URL in your browser - it will look like: <code className="bg-blue-100 px-1 rounded">https://analytics.google.com/analytics/web/#/p123456789</code></li>
+              <li>The number after <code className="bg-blue-100 px-1 rounded">/p</code> is your Property ID (e.g., <code className="bg-blue-100 px-1 rounded">123456789</code>)</li>
+              <li className="mt-2">Alternatively: Go to <strong>Admin</strong> → <strong>Property Settings</strong> → Find the <strong>Property ID</strong> (numeric value)</li>
+            </ol>
+            <p className="mt-2 text-xs">Just enter the numbers (e.g., 123456789), not the full URL.</p>
+          </div>
+        ),
+      }
+    case 'google_ads':
+      return {
+        title: 'Connect Google Ads',
+        description: 'Enter your Google Ads account ID',
+        fields: [
+          {
+            name: 'accountId',
+            label: 'Google Ads Account ID',
+            placeholder: 'e.g., 123-456-7890',
+            type: 'text',
+            required: true,
+          },
+        ],
+      }
+    case 'instagram_ads':
+      return {
+        title: 'Connect Instagram Ads',
+        description: 'Enter your Instagram Ads Manager account ID',
+        fields: [
+          {
+            name: 'accountId',
+            label: 'Ad Account ID',
+            placeholder: 'e.g., act_123456789',
             type: 'text',
             required: true,
           },
@@ -257,7 +297,7 @@ export default function ConnectionModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+      <div className={`bg-white rounded-xl shadow-2xl ${connectionType === 'google_analytics' ? 'max-w-2xl' : 'max-w-md'} w-full p-6`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-primary">{connectionFields.title}</h3>
           <button
@@ -272,6 +312,12 @@ export default function ConnectionModal({
         </div>
 
         <p className="text-text-secondary mb-6">{connectionFields.description}</p>
+
+        {connectionFields.helpText && (
+          <div className="mb-6">
+            {connectionFields.helpText}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {connectionFields.fields.map((field) => (

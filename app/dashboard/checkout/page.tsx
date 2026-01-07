@@ -25,6 +25,23 @@ function CheckoutContent() {
   useEffect(() => {
     checkUser()
     fetchPlan()
+    
+    // Load Paystack script
+    const script = document.createElement('script')
+    script.src = 'https://js.paystack.co/v1/inline.js'
+    script.async = true
+    script.onload = () => {
+      setPaystackLoaded(true)
+    }
+    document.body.appendChild(script)
+    
+    return () => {
+      // Cleanup script on unmount
+      const existingScript = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]')
+      if (existingScript) {
+        document.body.removeChild(existingScript)
+      }
+    }
   }, [planName])
 
   const checkUser = async () => {
@@ -154,6 +171,16 @@ function CheckoutContent() {
       }
       periodEnd.setDate(periodEnd.getDate() + 30) // 30-day cycle
 
+      // Get plan limits for the upgraded plan
+      const { data: planData } = await supabase
+        .from('pricing_plans')
+        .select('tokens_limit, decisions_limit')
+        .eq('name', plan)
+        .single()
+
+      const planTokensLimit = planData?.tokens_limit || 250
+      const planDecisionsLimit = planData?.decisions_limit || 150
+
       const { error: updateError } = await supabase
         .from('user_subscriptions')
         .upsert({
@@ -164,6 +191,8 @@ function CheckoutContent() {
           current_period_end: periodEnd.toISOString(),
           paystack_customer_code: data.customerCode || existingSub?.paystack_customer_code,
           paystack_subscription_code: data.subscriptionCode || existingSub?.paystack_subscription_code,
+          tokens_limit: planTokensLimit, // Full plan limits for paid subscriptions
+          decisions_limit: planDecisionsLimit, // Full plan limits for paid subscriptions
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'user_id',

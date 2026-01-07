@@ -12,7 +12,23 @@ interface PricingPlan {
   features: string[]
   is_popular: boolean
   cta_text: string
+  available_applications?: string[]
+  tokens_limit?: number
+  decisions_limit?: number
 }
+
+const ALL_APPLICATIONS = [
+  { type: 'google_analytics', name: 'Google Analytics 4' },
+  { type: 'google_ads', name: 'Google Ads' },
+  { type: 'shopify', name: 'Shopify' },
+  { type: 'instagram_ads', name: 'Instagram Ads' },
+  { type: 'quickbooks', name: 'QuickBooks' },
+  { type: 'hubspot', name: 'HubSpot' },
+  { type: 'zendesk', name: 'Zendesk' },
+  { type: 'youtube_ads', name: 'YouTube Ads' },
+  { type: 'tiktok_ads', name: 'TikTok Ads' },
+  { type: 'facebook_ads', name: 'Facebook Ads' },
+]
 
 export default function PricingManagement() {
   const [plans, setPlans] = useState<PricingPlan[]>([])
@@ -78,6 +94,9 @@ export default function PricingManagement() {
           features: plan.features,
           is_popular: plan.is_popular,
           cta_text: plan.cta_text,
+          available_applications: plan.available_applications || [],
+          tokens_limit: plan.tokens_limit || 250,
+          decisions_limit: plan.decisions_limit || 150,
           updated_at: new Date().toISOString(),
         })
         .eq('id', plan.id)
@@ -193,8 +212,22 @@ export default function PricingManagement() {
 }
 
 function EditPlanForm({ plan, onSave, onCancel }: { plan: PricingPlan; onSave: (plan: PricingPlan) => void; onCancel: () => void }) {
-  const [formData, setFormData] = useState(plan)
+  const [formData, setFormData] = useState({
+    ...plan,
+    available_applications: plan.available_applications || [],
+    tokens_limit: plan.tokens_limit || 250,
+    decisions_limit: plan.decisions_limit || 150,
+  })
   const [featuresText, setFeaturesText] = useState(plan.features.join('\n'))
+  
+  const toggleApplication = (appType: string) => {
+    setFormData(prev => ({
+      ...prev,
+      available_applications: prev.available_applications?.includes(appType)
+        ? prev.available_applications.filter(a => a !== appType)
+        : [...(prev.available_applications || []), appType]
+    }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -264,6 +297,51 @@ function EditPlanForm({ plan, onSave, onCancel }: { plan: PricingPlan; onSave: (
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
         />
       </div>
+      
+      <div className="border-t pt-4">
+        <label className="block text-sm font-medium text-primary mb-3">Available Applications</label>
+        <p className="text-xs text-text-secondary mb-3">Select which applications clients on this tier can access</p>
+        <div className="grid grid-cols-2 gap-3">
+          {ALL_APPLICATIONS.map((app) => (
+            <label key={app.type} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.available_applications?.includes(app.type) || false}
+                onChange={() => toggleApplication(app.type)}
+                className="w-4 h-4 text-accent focus:ring-accent"
+              />
+              <span className="text-sm text-text-secondary">{app.name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t pt-4">
+        <label className="block text-sm font-medium text-primary mb-3">Usage Limits</label>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">Tokens Limit</label>
+            <input
+              type="number"
+              value={formData.tokens_limit}
+              onChange={(e) => setFormData({ ...formData, tokens_limit: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+              min="0"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">Decisions Limit</label>
+            <input
+              type="number"
+              value={formData.decisions_limit}
+              onChange={(e) => setFormData({ ...formData, decisions_limit: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
+              min="0"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="flex gap-4">
         <button
           type="submit"

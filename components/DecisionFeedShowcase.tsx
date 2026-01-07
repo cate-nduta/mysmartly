@@ -51,7 +51,10 @@ export default function DecisionFeedShowcase() {
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 md:p-12">
           <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
             <div>
+              <div className="flex items-center gap-3">
               <h3 className="text-2xl font-bold text-primary">Decision Feed</h3>
+                <span className="text-sm text-text-secondary">Today</span>
+              </div>
               <p className="text-text-secondary mt-1">Personalized recommendations for today</p>
             </div>
             <span className="text-sm font-medium text-accent bg-emerald-50 px-4 py-2 rounded-lg">
@@ -59,41 +62,57 @@ export default function DecisionFeedShowcase() {
             </span>
           </div>
 
-          <div className="space-y-6">
-            {recommendations.map((rec, index) => (
+          <div className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-lg"
+            >
+              <div className="mb-2">
+                <h4 className="font-semibold text-primary mb-1">Increase Ad Budget by 15%</h4>
+                <span className="text-xs text-text-secondary">High Impact</span>
+              </div>
+              <p className="text-sm font-medium text-primary">Projected revenue: +$18,750</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg"
+            >
+              <div className="mb-2">
+                <h4 className="font-semibold text-primary mb-1">Lower Inventory for Product X</h4>
+                <span className="text-xs text-text-secondary">Cost Save</span>
+              </div>
+              <p className="text-sm font-medium text-primary">Reduce holding costs by $4,200/month</p>
+            </motion.div>
+
               <motion.div
-                key={index}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`${rec.bgColor} border-l-4 ${rec.borderColor} p-6 rounded-lg hover:shadow-md transition-shadow`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="text-lg font-semibold text-primary">
-                        {rec.title}
-                      </h4>
-                      <span className="text-xs font-medium text-primary bg-white/80 px-3 py-1 rounded">
-                        {rec.priority}
-                      </span>
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg"
+            >
+              <div className="mb-2">
+                <h4 className="font-semibold text-primary mb-1">Focus Retention on At-Risk Customers</h4>
+                <span className="text-xs text-text-secondary">Urgent</span>
                     </div>
-                    <p className="text-text-secondary font-medium">
-                      Impact: <span className="text-accent">{rec.impact}</span>
-                    </p>
+              <p className="text-sm font-medium text-primary">Save $22,500 in potential churn</p>
+            </motion.div>
                   </div>
-                  <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors">
-                      Approve
+
+          <div className="mt-6 flex gap-3">
+            <button className="flex-1 bg-accent text-white py-2 rounded-lg text-sm font-medium hover:bg-emerald-600 transition-colors">
+              Approve All
                     </button>
-                    <button className="px-4 py-2 bg-white border border-gray-300 text-primary rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+            <button className="flex-1 bg-gray-100 text-primary py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
                       Review
                     </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
           </div>
 
           <div className="mt-8 pt-8 border-t border-gray-200">

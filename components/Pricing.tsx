@@ -14,6 +14,7 @@ interface PricingPlan {
   features: string[]
   is_popular: boolean
   cta_text: string
+  available_applications?: string[] | null
 }
 
 const defaultPlans: PricingPlan[] = [
@@ -45,7 +46,7 @@ const defaultPlans: PricingPlan[] = [
     description: 'For large organizations',
     features: ['Unlimited connections', 'Unlimited decisions', '24/7 phone support', 'Custom models', 'Dedicated CSM', 'SOC 2 reports', 'Unlimited seats'],
     is_popular: false,
-    cta_text: 'Contact Sales',
+    cta_text: 'Start Free Trial',
   },
 ]
 
@@ -57,6 +58,44 @@ export default function Pricing() {
   useEffect(() => {
     fetchPlans()
   }, [])
+
+  // Map application types to readable names
+  const getApplicationName = (type: string): string => {
+    const nameMap: Record<string, string> = {
+      'google_analytics': 'Google Analytics 4',
+      'google_ads': 'Google Ads',
+      'shopify': 'Shopify',
+      'instagram_ads': 'Instagram Ads',
+      'instagram_page': 'Instagram Ads', // Map instagram_page to Instagram Ads for display
+      'facebook_ads': 'Facebook Ads',
+      'youtube_ads': 'YouTube Ads',
+      'tiktok_ads': 'TikTok Ads',
+      'quickbooks': 'QuickBooks',
+      'hubspot': 'HubSpot',
+      'zendesk': 'Zendesk',
+    }
+    return nameMap[type] || type
+  }
+
+  // Format applications list for display
+  const formatApplicationsList = (applications: string[] | null | undefined): string => {
+    if (!applications || applications.length === 0) {
+      return 'No applications'
+    }
+    
+    // Map to names and remove duplicates
+    const appNames = [...new Set(applications.map(getApplicationName))]
+    
+    if (appNames.length === 1) {
+      return appNames[0]
+    } else if (appNames.length === 2) {
+      return `${appNames[0]} and ${appNames[1]}`
+    } else {
+      const lastApp = appNames[appNames.length - 1]
+      const otherApps = appNames.slice(0, -1).join(', ')
+      return `${otherApps}, and ${lastApp}`
+    }
+  }
 
   const fetchPlans = async () => {
     try {
@@ -92,7 +131,35 @@ export default function Pricing() {
           const bIndex = order.indexOf(b.name)
           return aIndex - bIndex
         })
-        setPlans(sortedPlans)
+        
+        // Process plans to update features with application names
+        const processedPlans = sortedPlans.map(plan => {
+          const features = [...(plan.features || [])]
+          
+          // Find and replace the "X data connections" feature with application-specific text
+          const connectionsFeatureIndex = features.findIndex(f => 
+            f.toLowerCase().includes('data connection') || 
+            f.toLowerCase().includes('connection')
+          )
+          
+          if (connectionsFeatureIndex !== -1 && plan.available_applications && plan.available_applications.length > 0) {
+            // Count unique applications (after mapping to names and removing duplicates)
+            const uniqueAppNames = [...new Set(plan.available_applications.map(getApplicationName))]
+            const appCount = uniqueAppNames.length
+            const appList = formatApplicationsList(plan.available_applications)
+            features[connectionsFeatureIndex] = `${appCount} data connection${appCount > 1 ? 's' : ''}: ${appList}`
+          } else if (connectionsFeatureIndex !== -1 && plan.name === 'Enterprise') {
+            // Enterprise has unlimited connections
+            features[connectionsFeatureIndex] = 'Unlimited connections'
+          }
+          
+          return {
+            ...plan,
+            features,
+          }
+        })
+        
+        setPlans(processedPlans)
       } else {
         // No data found - use default plans
         setPlans(defaultPlans)

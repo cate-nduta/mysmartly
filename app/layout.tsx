@@ -39,7 +39,10 @@ export async function generateMetadata(): Promise<Metadata> {
       description: 'Transform Data into Automated Business Decisions',
       keywords: 'business intelligence, decision automation, data analytics, AI business insights, automated decisions',
       icons: {
-        icon: faviconUrl,
+        icon: [
+          { url: faviconUrl, sizes: 'any' },
+          { url: faviconUrl, type: 'image/svg+xml' },
+        ],
         apple: faviconUrl,
         shortcut: faviconUrl,
       },
@@ -88,6 +91,12 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/icon.svg" />
+        <meta name="theme-color" content="#0F4C5C" />
+        <meta name="google-site-verification" content="EPBxhseB7zMxvTVwEirhzTjvh7oTL1cR_ChHd21A06s" />
+      </head>
       <body>
         {children}
         <Analytics gaId={gaId} gtmId={gtmId} />

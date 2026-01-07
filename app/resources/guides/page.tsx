@@ -6,6 +6,10 @@ import Breadcrumb from '@/components/Breadcrumb'
 import FinalCTA from '@/components/FinalCTA'
 import { createClient } from '@supabase/supabase-js'
 
+// Force dynamic rendering to ensure fresh data
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Free Business Guides & Templates | mySmartly',
   description: 'Download free business guides, templates, and frameworks to help you make better data-driven decisions.',
@@ -33,18 +37,30 @@ async function getGuides() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data, error } = await supabase
-    .from('guides')
-    .select('*')
-    .eq('is_published', true)
-    .order('published_date', { ascending: false })
+  try {
+    const { data, error } = await supabase
+      .from('guides')
+      .select('*')
+      .eq('is_published', true)
+      .order('published_date', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching guides:', error)
+    if (error) {
+      console.error('Error fetching guides:', error)
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
+      return []
+    }
+
+    console.log('Fetched guides:', data?.length || 0, 'guides')
+    return data || []
+  } catch (err) {
+    console.error('Unexpected error fetching guides:', err)
     return []
   }
-
-  return data || []
 }
 
 export default async function GuidesPage() {

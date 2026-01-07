@@ -28,13 +28,24 @@ export default function DashboardPage() {
   const [recommendationsCount, setRecommendationsCount] = useState(0)
   const [onboardingData, setOnboardingData] = useState<any>(null)
   const [activeSection, setActiveSection] = useState<'dashboard' | 'usage' | 'spending' | 'billing'>('dashboard')
+  const [showDecisionFeed, setShowDecisionFeed] = useState(false) // Hide by default, show after recommendations generated
 
   // Enable session timeout (1 hour inactivity)
   useSessionTimeout()
 
   useEffect(() => {
     checkUser()
-  }, [])
+    
+    // Refetch data when window gains focus (user returns to tab)
+    const handleFocus = () => {
+      if (user) {
+        checkUser()
+      }
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [user])
 
   const checkUser = async () => {
     try {
@@ -46,6 +57,24 @@ export default function DashboardPage() {
       }
 
       setUser(currentUser)
+
+      // CRITICAL: Check if onboarding is complete
+      // Users MUST complete onboarding before accessing dashboard
+      // Fetch full onboarding data (not just id) so we can use it for personalized recommendations later
+      const { data: onboardingData } = await supabase
+        .from('user_onboarding')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single()
+
+      // If onboarding not complete, redirect to onboarding
+      if (!onboardingData) {
+        router.push('/auth/onboarding')
+        return
+      }
+
+      // Set onboarding data for personalized recommendations
+      setOnboardingData(onboardingData)
 
       // Fetch subscription
       const { data: subData } = await supabase
@@ -67,17 +96,29 @@ export default function DashboardPage() {
         if (planData) {
           setPlan(planData)
         }
+      } else {
+        // If no subscription, fetch Starter plan as default (for new users)
+        const { data: starterPlan } = await supabase
+          .from('pricing_plans')
+          .select('*')
+          .eq('name', 'Starter')
+          .single()
+
+        if (starterPlan) {
+          setPlan(starterPlan)
+        }
       }
 
-      // Fetch connections count
+      // Fetch connections count - force fresh data (no cache)
       const { count: connectionsCountData } = await supabase
         .from('data_connections')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false }) // Add ordering to ensure fresh query
 
       setConnectionsCount(connectionsCountData || 0)
 
-      // Fetch recommendations count for current month
+      // Fetch recommendations count for current month - force fresh data (no cache)
       const now = new Date()
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       
@@ -86,17 +127,11 @@ export default function DashboardPage() {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', currentUser.id)
         .gte('created_at', startOfMonth.toISOString())
+        .order('created_at', { ascending: false }) // Add ordering to ensure fresh query
 
       setRecommendationsCount(recommendationsCountData || 0)
 
-      // Fetch onboarding data for personalized recommendations
-      const { data: onboardingData } = await supabase
-        .from('user_onboarding')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .single()
-
-      setOnboardingData(onboardingData)
+      // Onboarding data already fetched and set above (after onboarding check)
     } catch (error) {
       console.error('Error checking user:', error)
       router.push('/auth/login')
@@ -107,6 +142,7 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    router.push('/auth/login')
     router.push('/')
   }
 
@@ -243,15 +279,24 @@ export default function DashboardPage() {
                 <DataConnections userId={user.id} />
               </div>
 
-              {/* Decision Feed */}
+              {/* AI Business Advisor */}
               <div className="mb-8">
-                <DecisionFeed userId={user.id} onboardingData={onboardingData} />
+                <AIChatbot 
+                  userName={user.user_metadata?.full_name || user.email?.split('@')[0] || 'there'}
+                  userId={user.id}
+                  onRecommendationsGenerated={() => {
+                    setShowDecisionFeed(true)
+                  }}
+                />
               </div>
 
-              {/* AI Chatbot */}
-              <div>
-                <AIChatbot userName={user.user_metadata?.full_name || user.email?.split('@')[0] || 'there'} />
-              </div>
+              {/* Decision Feed - Recommendations from chatbot conversations */}
+              {/* Only show after recommendations are generated */}
+              {showDecisionFeed && (
+                <div id="decision-feed-section" className="mb-8">
+                  <DecisionFeed userId={user.id} onboardingData={onboardingData} />
+                </div>
+              )}
             </div>
           )}
 

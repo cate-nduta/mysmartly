@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 
 interface TeamMember {
@@ -39,10 +39,107 @@ export default function TeamManagement() {
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string>('')
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [showCropModal, setShowCropModal] = useState(false)
+  const [cropImage, setCropImage] = useState<string>('')
+  const [cropArea, setCropArea] = useState({ x: 0, y: 0, width: 200, height: 200 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, corner: '' })
+  const imageRef = useRef<HTMLImageElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   useEffect(() => {
     fetchMembers()
   }, [])
+
+  // Global mouse event handlers for dragging/resizing
+  useEffect(() => {
+    if (!isDragging && !isResizing) return
+    
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!imageRef.current || !containerRef.current) return
+      
+      const img = imageRef.current
+      const imgRect = img.getBoundingClientRect()
+      const displayWidth = img.width
+      const displayHeight = img.height
+      
+      if (isDragging) {
+        let newX = e.clientX - imgRect.left - dragStart.x
+        let newY = e.clientY - imgRect.top - dragStart.y
+        
+        setCropArea(prev => {
+          // Constrain to image bounds
+          const constrainedX = Math.max(0, Math.min(newX, displayWidth - prev.width))
+          const constrainedY = Math.max(0, Math.min(newY, displayHeight - prev.height))
+          return { ...prev, x: constrainedX, y: constrainedY }
+        })
+      } else if (isResizing) {
+        const deltaX = e.clientX - resizeStart.x
+        const deltaY = e.clientY - resizeStart.y
+        
+        setCropArea(prev => {
+          let newWidth = prev.width
+          let newHeight = prev.height
+          let newX = prev.x
+          let newY = prev.y
+          
+          if (resizeStart.corner.includes('e')) {
+            newWidth = Math.max(150, Math.min(prev.width + deltaX, displayWidth - prev.x))
+          }
+          if (resizeStart.corner.includes('w')) {
+            const change = Math.max(-prev.width + 150, Math.min(deltaX, prev.x))
+            newWidth = prev.width - change
+            newX = prev.x + change
+          }
+          if (resizeStart.corner.includes('s')) {
+            newHeight = Math.max(150, Math.min(prev.height + deltaY, displayHeight - prev.y))
+          }
+          if (resizeStart.corner.includes('n')) {
+            const change = Math.max(-prev.height + 150, Math.min(deltaY, prev.y))
+            newHeight = prev.height - change
+            newY = prev.y + change
+          }
+          
+          // Keep square aspect ratio
+          const size = Math.min(newWidth, newHeight)
+          
+          // Adjust position if needed
+          if (resizeStart.corner.includes('w') || resizeStart.corner.includes('n')) {
+            if (newWidth !== size) {
+              newX = prev.x + (prev.width - size)
+            }
+            if (newHeight !== size) {
+              newY = prev.y + (prev.height - size)
+            }
+          }
+          
+          // Final bounds check
+          newX = Math.max(0, Math.min(newX, displayWidth - size))
+          newY = Math.max(0, Math.min(newY, displayHeight - size))
+          
+          return { x: newX, y: newY, width: size, height: size }
+        })
+        
+        setResizeStart(prev => ({ ...prev, x: e.clientX, y: e.clientY }))
+      }
+    }
+    
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false)
+      setIsResizing(false)
+    }
+    
+    document.addEventListener('mousemove', handleGlobalMouseMove)
+    document.addEventListener('mouseup', handleGlobalMouseUp)
+    
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove)
+      document.removeEventListener('mouseup', handleGlobalMouseUp)
+    }
+  }, [isDragging, isResizing, dragStart, resizeStart])
 
   const fetchMembers = async () => {
     try {
@@ -100,13 +197,126 @@ export default function TeamManagement() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setPhotoFile(file)
       const reader = new FileReader()
       reader.onloadend = () => {
-        setPhotoPreview(reader.result as string)
+        const imageUrl = reader.result as string
+        setCropImage(imageUrl)
+        setPhotoPreview(imageUrl)
+        setShowCropModal(true)
+        setImageLoaded(false)
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const initializeCropArea = () => {
+    if (imageRef.current) {
+      const img = imageRef.current
+      const displayWidth = img.width
+      const displayHeight = img.height
+      // Make crop area larger - 85% of the smaller dimension, but ensure it fits
+      const maxSize = Math.min(displayWidth, displayHeight)
+      const size = Math.min(maxSize * 0.85, maxSize - 20) // 85% or leave 10px margin on each side
+      setCropArea({
+        x: (displayWidth - size) / 2,
+        y: (displayHeight - size) / 2,
+        width: size,
+        height: size
+      })
+      setImageLoaded(true)
+    }
+  }
+
+  // Handle crop area dragging - work in displayed pixels
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement
+    if (target.classList.contains('crop-area') || target.classList.contains('crop-handle')) {
+      if (target.classList.contains('crop-handle')) {
+        // Resizing
+        setIsResizing(true)
+        setResizeStart({ 
+          x: e.clientX, 
+          y: e.clientY, 
+          corner: target.dataset.corner || '' 
+        })
+      } else {
+        // Dragging
+        setIsDragging(true)
+        const rect = containerRef.current?.getBoundingClientRect()
+        if (rect && imageRef.current) {
+          const img = imageRef.current
+          const imgRect = img.getBoundingClientRect()
+          setDragStart({
+            x: e.clientX - (imgRect.left + cropArea.x),
+            y: e.clientY - (imgRect.top + cropArea.y)
+          })
+        }
+      }
+      e.preventDefault()
+    }
+  }
+
+  // Mouse move handler is now in useEffect for global handling
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+    setIsResizing(false)
+  }
+
+  // Apply crop and convert to file
+  const applyCrop = () => {
+    if (!imageRef.current || !cropImage) return
+
+    const img = imageRef.current
+    const canvas = document.createElement('canvas')
+    canvas.width = 400 // Output size for team photos (square)
+    canvas.height = 400
+    const ctx = canvas.getContext('2d')
+    
+    if (!ctx) return
+
+    // Calculate scale from displayed size to natural size
+    const scaleX = img.naturalWidth / img.width
+    const scaleY = img.naturalHeight / img.height
+    
+    // Convert displayed crop coordinates to natural image coordinates
+    const sourceX = cropArea.x * scaleX
+    const sourceY = cropArea.y * scaleY
+    const sourceWidth = cropArea.width * scaleX
+    const sourceHeight = cropArea.height * scaleY
+    
+    // Draw cropped image to canvas
+    ctx.drawImage(
+      img,
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      0,
+      0,
+      400,
+      400
+    )
+
+    // Convert to blob then file
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], 'team-photo.jpg', { type: 'image/jpeg' })
+        setPhotoFile(file)
+        setPhotoPreview(canvas.toDataURL('image/jpeg'))
+        setShowCropModal(false)
+        setCropImage('')
+      }
+    }, 'image/jpeg', 0.9)
+  }
+
+  const cancelCrop = () => {
+    setShowCropModal(false)
+    setCropImage('')
+    setPhotoFile(null)
+    setPhotoPreview('')
+    const fileInput = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -157,6 +367,7 @@ export default function TeamManagement() {
       const dataToSave = {
         ...formData,
         photo_url: finalPhotoUrl || null,
+        is_active: formData.is_active ?? true, // Ensure is_active is set
         updated_at: new Date().toISOString(),
       }
 
@@ -169,12 +380,17 @@ export default function TeamManagement() {
         if (error) throw error
         setMessage({ type: 'success', text: 'Team member updated successfully!' })
       } else {
+        // Ensure is_active is true for new members
+        const newMemberData = {
+          ...dataToSave,
+          is_active: true, // Always set to true for new members
+        }
         const { error } = await supabase
           .from('team_members')
-          .insert([dataToSave])
+          .insert([newMemberData])
 
         if (error) throw error
-        setMessage({ type: 'success', text: 'Team member added successfully!' })
+        setMessage({ type: 'success', text: 'Team member added successfully! It will appear on the About page immediately.' })
       }
 
       setShowForm(false)
@@ -199,8 +415,14 @@ export default function TeamManagement() {
         .eq('id', id)
 
       if (error) throw error
-      setMessage({ type: 'success', text: 'Team member deleted successfully!' })
+      setMessage({ type: 'success', text: 'Team member deleted successfully! It will be removed from the About page immediately.' })
       await fetchMembers()
+      
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000)
+      
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(null), 3000)
     } catch (error: any) {
       console.error('Error deleting team member:', error)
       setMessage({ type: 'error', text: error.message })
@@ -230,6 +452,128 @@ export default function TeamManagement() {
           }`}
         >
           {message.text}
+        </div>
+      )}
+
+      {/* Image Crop Modal */}
+      {showCropModal && cropImage && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl p-6 max-w-6xl w-full max-h-[95vh] overflow-auto">
+            <h3 className="text-xl font-bold text-primary mb-4">Crop Team Photo</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Drag the crop area to position it, or drag the corners to resize. The photo will be cropped to a square.
+            </p>
+            
+            <div 
+              ref={containerRef}
+              className="relative border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-100 mb-4 flex items-center justify-center"
+              style={{ minHeight: '500px', maxHeight: '75vh' }}
+              onMouseDown={handleMouseDown}
+            >
+              <img
+                ref={imageRef}
+                src={cropImage}
+                alt="Crop preview"
+                className="max-w-full max-h-[75vh] w-auto h-auto block"
+                style={{ maxWidth: '100%', maxHeight: '75vh', objectFit: 'contain' }}
+                onLoad={initializeCropArea}
+              />
+              
+              {imageLoaded && imageRef.current && (
+                <>
+                  {/* Crop overlay - positioned in displayed pixels */}
+                  <div
+                    className="absolute border-2 border-accent bg-accent/10 crop-area"
+                    style={{
+                      left: `${cropArea.x}px`,
+                      top: `${cropArea.y}px`,
+                      width: `${cropArea.width}px`,
+                      height: `${cropArea.height}px`,
+                      cursor: isDragging ? 'grabbing' : 'grab',
+                    }}
+                  >
+                    {/* Resize handles */}
+                    <div
+                      className="absolute -top-2 -left-2 w-4 h-4 bg-accent border-2 border-white rounded-full cursor-nwse-resize crop-handle z-10"
+                      data-corner="nw"
+                      onMouseDown={(e) => {
+                        e.stopPropagation()
+                        setIsResizing(true)
+                        setResizeStart({ x: e.clientX, y: e.clientY, corner: 'nw' })
+                      }}
+                    />
+                    <div
+                      className="absolute -top-2 -right-2 w-4 h-4 bg-accent border-2 border-white rounded-full cursor-nesw-resize crop-handle z-10"
+                      data-corner="ne"
+                      onMouseDown={(e) => {
+                        e.stopPropagation()
+                        setIsResizing(true)
+                        setResizeStart({ x: e.clientX, y: e.clientY, corner: 'ne' })
+                      }}
+                    />
+                    <div
+                      className="absolute -bottom-2 -left-2 w-4 h-4 bg-accent border-2 border-white rounded-full cursor-nesw-resize crop-handle z-10"
+                      data-corner="sw"
+                      onMouseDown={(e) => {
+                        e.stopPropagation()
+                        setIsResizing(true)
+                        setResizeStart({ x: e.clientX, y: e.clientY, corner: 'sw' })
+                      }}
+                    />
+                    <div
+                      className="absolute -bottom-2 -right-2 w-4 h-4 bg-accent border-2 border-white rounded-full cursor-nwse-resize crop-handle z-10"
+                      data-corner="se"
+                      onMouseDown={(e) => {
+                        e.stopPropagation()
+                        setIsResizing(true)
+                        setResizeStart({ x: e.clientX, y: e.clientY, corner: 'se' })
+                      }}
+                    />
+                  </div>
+                  
+                  {/* Dark overlay outside crop area */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none" 
+                    style={{
+                      background: `linear-gradient(to right, 
+                        rgba(0,0,0,0.6) 0%, 
+                        rgba(0,0,0,0.6) ${(cropArea.x / imageRef.current.width) * 100}%,
+                        transparent ${(cropArea.x / imageRef.current.width) * 100}%,
+                        transparent ${((cropArea.x + cropArea.width) / imageRef.current.width) * 100}%,
+                        rgba(0,0,0,0.6) ${((cropArea.x + cropArea.width) / imageRef.current.width) * 100}%,
+                        rgba(0,0,0,0.6) 100%
+                      ),
+                      linear-gradient(to bottom,
+                        rgba(0,0,0,0.6) 0%,
+                        rgba(0,0,0,0.6) ${(cropArea.y / imageRef.current.height) * 100}%,
+                        transparent ${(cropArea.y / imageRef.current.height) * 100}%,
+                        transparent ${((cropArea.y + cropArea.height) / imageRef.current.height) * 100}%,
+                        rgba(0,0,0,0.6) ${((cropArea.y + cropArea.height) / imageRef.current.height) * 100}%,
+                        rgba(0,0,0,0.6) 100%
+                      )`
+                    }} 
+                  />
+                </>
+              )}
+            </div>
+            
+            <div className="flex gap-4 justify-end">
+              <button
+                type="button"
+                onClick={cancelCrop}
+                className="px-6 py-2 bg-gray-200 text-primary rounded-lg font-medium hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={applyCrop}
+                className="px-6 py-2 bg-accent text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors"
+              >
+                Apply Crop
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -305,15 +649,6 @@ export default function TeamManagement() {
                   type="url"
                   value={formData.linkedin_url}
                   onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-primary mb-2">Twitter URL</label>
-                <input
-                  type="url"
-                  value={formData.twitter_url}
-                  onChange={(e) => setFormData({ ...formData, twitter_url: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>

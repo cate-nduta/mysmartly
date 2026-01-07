@@ -28,8 +28,28 @@ export default function LoginPage() {
       if (signInError) {
         // Provide helpful error messages
         const errorMessage = signInError.message?.toLowerCase() || ''
+        
+        // Check if account exists - Supabase returns specific error for non-existent users
         if (errorMessage.includes('invalid login') || errorMessage.includes('invalid credentials')) {
-          setError('Invalid email or password. Please check your credentials and try again. If you forgot your password, use "Forgot password?" to reset it.')
+          // Check if user exists by calling an API endpoint that checks email
+          try {
+            const checkResponse = await fetch('/api/auth/check-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email }),
+            })
+            
+            const checkData = await checkResponse.json()
+            
+            if (!checkData.exists) {
+              setError(`No account created with ${email}. Please sign up to create an account.`)
+            } else {
+              setError('Invalid email or password. Please check your credentials and try again. If you forgot your password, use "Forgot password?" to reset it.')
+            }
+          } catch (checkError) {
+            // Fallback: assume password is wrong
+            setError('Invalid email or password. Please check your credentials and try again. If you forgot your password, use "Forgot password?" to reset it.')
+          }
         } else if (errorMessage.includes('email not confirmed') || errorMessage.includes('email not verified')) {
           setError('Please check your email and confirm your account before signing in. Check your spam folder if you don\'t see the confirmation email.')
         } else {
@@ -59,15 +79,33 @@ export default function LoginPage() {
           return
         }
 
-        // Client user - ALWAYS redirect to dashboard
-        // Do NOT check admin status - this is a client-only page
+        // Client user - For EXISTING users signing in, check if onboarding already completed
+        // If they already completed onboarding, skip it. Otherwise, they must complete it.
+        // This is different from new signups which ALWAYS go through onboarding
+        const { data: onboardingData } = await supabase
+          .from('user_onboarding')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .single()
+
         // Check for timeout message
         const urlParams = new URLSearchParams(window.location.search)
         if (urlParams.get('timeout') === 'true') {
           // Show timeout message
           setError('Your session has expired due to inactivity. Please sign in again.')
         }
+
+        // For existing users signing in:
+        // - If onboarding already completed → go to dashboard
+        // - If onboarding not completed → redirect to onboarding (legacy users or edge cases)
+        // New signups are handled in signup page and will always go through onboarding
+        if (!onboardingData) {
+          // Existing user without onboarding - must complete it before dashboard access
+          window.location.href = '/auth/onboarding'
+          return
+        }
         
+        // Onboarding already completed - go directly to dashboard (skip onboarding)
         window.location.href = '/dashboard'
       }
     } catch (err: any) {
@@ -82,8 +120,14 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error: oauthError } = await signInWithGoogle()
+      // For login page, use regular sign in (not signup flow)
+      // Pass admin=false explicitly to ensure client dashboard redirect
+      const { error: oauthError } = await signInWithGoogle(false)
       if (oauthError) throw oauthError
+      // Note: redirect will happen automatically via callback
+      // The callback will check if user has completed onboarding
+      // - If yes: redirect to /dashboard
+      // - If no: redirect to /auth/onboarding
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google')
       setLoading(false)

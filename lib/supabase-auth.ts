@@ -19,20 +19,38 @@ export const signInWithEmail = async (email: string, password: string) => {
 
 export const signUpWithEmail = async (email: string, password: string) => {
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mysmartly.app'
   return await supabase.auth.signUp({
     email,
     password,
+    options: {
+      emailRedirectTo: `${siteUrl}/auth/callback?type=signup`,
+    },
   })
 }
 
-export const signInWithGoogle = async (admin: boolean = false) => {
+export const signInWithGoogle = async (admin: boolean = false, isSignup: boolean = false) => {
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
+  // Use production URL from environment, fallback to window.location.origin for development
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://mysmartly.app')
+  
+  // Build redirect URL with appropriate parameters
+  let redirectUrl = `${siteUrl}/auth/callback`
+  if (admin) {
+    redirectUrl += '?admin=true'
+  } else if (isSignup) {
+    redirectUrl += '?type=signup'
+  }
+  // If neither admin nor signup, it's a login - no type parameter needed
+  
   return await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: admin 
-        ? `${window.location.origin}/auth/callback?admin=true`
-        : `${window.location.origin}/auth/callback`,
+      redirectTo: redirectUrl,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
     },
   })
 }

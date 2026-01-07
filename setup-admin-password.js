@@ -234,7 +234,7 @@ CREATE POLICY "Allow authenticated read own admin status" ON admin_users
     console.log('Email:', ADMIN_EMAIL)
     console.log('Password:', ADMIN_PASSWORD)
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-    console.log('\n🌐 You can now login at: http://localhost:3000/admin')
+    console.log('\n🌐 You can now login at: https://mysmartly.app/admin')
     console.log('\n')
 
   } catch (error) {

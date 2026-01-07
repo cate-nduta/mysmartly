@@ -8,7 +8,7 @@ export default function WaitlistForm() {
   const [features, setFeatures] = useState<string[]>([])
   const [integrationWish, setIntegrationWish] = useState('')
   const [customFeature, setCustomFeature] = useState('')
-  const [showOptional, setShowOptional] = useState(false)
+  const [showOptional, setShowOptional] = useState(true)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
