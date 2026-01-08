@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// Force dynamic rendering - this route uses searchParams
+export const dynamic = 'force-dynamic'
+
 // Meta OAuth callback handler
 // This receives the authorization code from Meta and exchanges it for an access token
 export async function GET(request: NextRequest) {
@@ -33,7 +36,7 @@ export async function GET(request: NextRequest) {
   try {
     const META_APP_ID = process.env.META_APP_ID
     const META_APP_SECRET = process.env.META_APP_SECRET
-    const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/oauth/meta/callback`
+    const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mysmartly.app'}/api/oauth/meta/callback`
 
     if (!META_APP_ID || !META_APP_SECRET) {
       throw new Error('Meta OAuth credentials not configured')

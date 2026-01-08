@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering - this route uses searchParams
+export const dynamic = 'force-dynamic'
+
 // Meta OAuth initiation endpoint
 // This redirects the user to Meta's OAuth login page
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const userId = searchParams.get('userId')
-  const redirectUri = searchParams.get('redirectUri') || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/oauth/meta/callback`
+  const redirectUri = searchParams.get('redirectUri') || `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mysmartly.app'}/api/oauth/meta/callback`
 
   if (!userId) {
     return NextResponse.json({ error: 'User ID is required' }, { status: 400 })

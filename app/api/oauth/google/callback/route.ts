@@ -3,6 +3,9 @@ import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { listAnalyticsProperties } from '@/lib/google-analytics'
 
+// Force dynamic rendering - this route uses searchParams
+export const dynamic = 'force-dynamic'
+
 /**
  * Handle Google OAuth callback
  * Exchange authorization code for access token and refresh token

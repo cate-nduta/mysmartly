@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+// Force dynamic rendering - this route uses searchParams
+export const dynamic = 'force-dynamic'
+
 /**
  * Initiate Google OAuth flow for Google Analytics
  * This allows each user to authorize their own Google Analytics account
@@ -21,7 +24,7 @@ export async function GET(req: NextRequest) {
     // Get OAuth credentials from environment (these are YOUR app's credentials, not user-specific)
     const clientId = process.env.GOOGLE_CLIENT_ID
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET
-    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/oauth/google/callback`
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.NEXT_PUBLIC_SITE_URL || 'https://mysmartly.app'}/api/oauth/google/callback`
 
     if (!clientId || !clientSecret) {
       return NextResponse.json(
